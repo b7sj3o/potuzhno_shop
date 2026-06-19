@@ -134,5 +134,4 @@ STATICFILES_DIRS = [
     STATIC_BASE_DIR / "shop" / "static",
 ]
 
-# У Django 6.0 BigAutoField — глобальний дефолт, тож DEFAULT_AUTO_FIELD
-# більше не потрібен у шаблоні (прибрано з django-admin startproject).
+APPEND_SLASH = True
