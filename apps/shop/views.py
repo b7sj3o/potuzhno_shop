@@ -3,7 +3,7 @@ from django.http import HttpResponse, HttpRequest, Http404
 
 # Create your views here.
 PRODUCTS = [
-    {"id": 1, "name": "Худі Oversize", "brand": "ПОТУЖНО", "price": 1290, "sizes": ["S", "M", "L"]},
+    {"id": 1, "name": "Худі Oversize", "brand": "ПОТУЖНО", "price": 1290, "sizes": ["S", "M", "L"], "image": "shop/img/hoody.jpg"},
     {"id": 2, "name": "Кросівки Runner", "brand": "Nova", "price": 2490, "sizes": ["40", "41", "42"]},
     {"id": 3, "name": "Футболка Basic", "brand": "ПОТУЖНО", "price": 590, "sizes": ["XS", "S", "M", "L"]},
     {"id": 4, "name": "Футболка Basic", "brand": "ПОТУЖНО", "price": 590, "sizes": ["XS", "S", "M", "L"]},
@@ -18,7 +18,7 @@ def product_list(request: HttpRequest):
     for product in PRODUCTS:
         response += f"<li><a href=\"/products/{product['id']}\">{product['name']}</a></li>\n"
 
-    return HttpResponse(f"<ul>{response}</ul>")
+    return render(request, "shop/product_list.html", {"products": PRODUCTS})
 
 
 def product_detail(request: HttpRequest, pk: int):
@@ -28,10 +28,4 @@ def product_detail(request: HttpRequest, pk: int):
         raise Http404()
         # return render(request, '404.html')
 
-    return HttpResponse(
-        f"<h1>{product['name']}</h1>"
-        f"<p>Бренд: {product['brand']}</p>"
-        f"<p>Ціна: {product['price']} грн</p>"
-        f"<p>Розміри: {', '.join(product['sizes'])}</p>"
-        f'<p><a href="/products/">← до каталогу</a></p>'
-    )
+    return render(request, "shop/product_detail.html", {"product": product})
