@@ -1,0 +1,44 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ product.name }} — ПОТУЖНО Shop{% endblock %}
+
+{% block content %}
+    {# Хлібні крихти #}
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'shop:home' %}">Головна</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'shop:product_list' %}">Каталог</a></li>
+            <li class="breadcrumb-item active" aria-current="page">{{ product.name }}</li>
+        </ol>
+    </nav>
+
+    <div class="row g-4">
+        {# Ліва колонка — фото (поки заглушка) #}
+        <div class="col-md-5">
+            <div class="product-detail__thumb">{{ product.name|first }}</div>
+        </div>
+
+        {# Права колонка — інформація + вибір розміру #}
+        <div class="col-md-7">
+            <span class="text-muted">{{ product.brand }}</span>
+            <h1 class="h3">{{ product.name }}</h1>
+            <p class="display-6 fw-bold text-success">{{ product.price }} грн</p>
+
+            <h2 class="h6 mt-4">Оберіть розмір</h2>
+            <div class="d-flex flex-wrap gap-2 mb-4">
+                {% for size in product.sizes %}
+                    <button type="button" class="btn btn-outline-dark size-btn">{{ size }}</button>
+                {% empty %}
+                    <span class="text-muted">розміри уточнюються</span>
+                {% endfor %}
+            </div>
+
+            {# Кнопка «у кошик» поки демонстраційна — логіку додамо на Рів. 9–14 #}
+            <button type="button" class="btn btn-dark btn-lg" disabled>🛒 Додати в кошик (скоро)</button>
+
+            <p class="mt-4">
+                <a href="{% url 'shop:product_list' %}" class="link-secondary">← повернутись до каталогу</a>
+            </p>
+        </div>
+    </div>
+{% endblock %}

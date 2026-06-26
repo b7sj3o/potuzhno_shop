@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+
+{% block title %}Каталог — ПОТУЖНО Shop{% endblock %}
+
+{% block content %}
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h3 mb-0">Каталог</h1>
+        <span class="text-muted">{{ products|length }} товар(ів)</span>
+    </div>
+
+    <div class="row row-cols-1 row-cols-sm-2 row-cols-lg-3 g-4">
+        {% for product in products %}
+            <div class="col">
+                {% include 'partials/product_card.html' with product=product only %}
+            </div>
+        {% empty %}
+            <div class="col-12">
+                <div class="alert alert-info">Поки що в каталозі немає товарів.</div>
+            </div>
+        {% endfor %}
+    </div>
+{% endblock %}
