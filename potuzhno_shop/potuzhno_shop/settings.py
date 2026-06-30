@@ -38,7 +38,10 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
 
-    "apps.shop.apps"
+    "apps.shop.apps.ShopConfig",
+    "apps.accounts.apps.AccountsConfig",
+    "apps.orders.apps.OrdersConfig",
+    "apps.reviews.apps.ReviewsConfig",
 ]
 
 MIDDLEWARE = [
@@ -61,6 +64,9 @@ TEMPLATES = [
         'DIRS': [
             BASE_DIR / "templates",
             TEMPLATE_BASE_DIR / "shop" / "templates",
+            TEMPLATE_BASE_DIR / "accounts" / "templates",
+            TEMPLATE_BASE_DIR / "orders" / "templates",
+            TEMPLATE_BASE_DIR / "reviews" / "templates",
         ],
         'APP_DIRS': True,
         'OPTIONS': {
@@ -130,8 +136,11 @@ STATIC_URL = 'static/'
 STATIC_BASE_DIR = BASE_DIR / "apps"
 
 STATICFILES_DIRS = [
-    STATIC_BASE_DIR / "static",
+    BASE_DIR / "static",
     STATIC_BASE_DIR / "shop" / "static",
+    STATIC_BASE_DIR / "accounts" / "static",
+    STATIC_BASE_DIR / "orders" / "static",
+    STATIC_BASE_DIR / "reviews" / "static",
 ]
 
 APPEND_SLASH = True

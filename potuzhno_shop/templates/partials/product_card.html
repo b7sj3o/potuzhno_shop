@@ -18,7 +18,7 @@
 
         <div class="mt-auto d-flex justify-content-between align-items-center">
             <span class="fw-bold fs-5">{{ product.price }} грн</span>
-            <a href="{% url 'shop:product_detail' product.id %}" class="btn btn-sm btn-dark">Детальніше</a>
+            <a href="{% url 'shop:product_detail' product.slug %}" class="btn btn-sm btn-dark">Детальніше</a>
         </div>
     </div>
 </div>

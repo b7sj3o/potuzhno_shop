@@ -12,5 +12,5 @@ app_name = "shop"
 urlpatterns = [
     path("", HomeView.as_view(), name="home"),
     path("products/", ProductListView.as_view(), name="product_list"),
-    path("products/<int:pk>/", ProductDetailView.as_view(), name="product_detail"),
+    path("products/<slug:slug>/", ProductDetailView.as_view(), name="product_detail"),
 ]
