@@ -47,3 +47,11 @@
     border-color: var(--potuzhno-accent);
     color: #fff;
 }
+
+/* ── Панель фільтрів каталогу ── */
+.filter-bar {
+    background: #f8f7fc;
+    border: 1px solid #ece7f6;
+    border-radius: .5rem;
+    padding: 1rem;
+}

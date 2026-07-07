@@ -3,11 +3,65 @@
 {% block title %}Каталог — ПОТУЖНО Shop{% endblock %}
 
 {% block content %}
-    <div class="d-flex justify-content-between align-items-center mb-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
         <h1 class="h3 mb-0">Каталог</h1>
-        <span class="text-muted">{{ products|length }} товар(ів)</span>
+        <span class="text-muted">{{ page_obj.paginator.count }} товар(ів)</span>
     </div>
 
+    {# ───────── Панель фільтрів (звичайна GET-форма; повноцінна Django-форма буде на Рів. 12) ───────── #}
+    <form method="get" class="filter-bar mb-4">
+        <div class="row g-2 align-items-end">
+            <div class="col-12 col-md-4">
+                <label class="form-label small mb-1">Пошук за назвою</label>
+                <input type="text" name="q" value="{{ request.GET.q }}" class="form-control" placeholder="напр. худі">
+            </div>
+
+            <div class="col-6 col-md-2">
+                <label class="form-label small mb-1">Категорія</label>
+                <select name="category" class="form-select">
+                    <option value="">Усі</option>
+                    {% for category in categories %}
+                        <option value="{{ category.slug }}" {% if request.GET.category == category.slug %}selected{% endif %}>{{ category.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="col-6 col-md-2">
+                <label class="form-label small mb-1">Аудиторія</label>
+                <select name="audience" class="form-select">
+                    <option value="">Будь-яка</option>
+                    {% for value, label in audience_choices %}
+                        <option value="{{ value }}" {% if request.GET.audience == value %}selected{% endif %}>{{ label }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="col-6 col-md-2">
+                <label class="form-label small mb-1">Ціна, грн</label>
+                <div class="input-group">
+                    <input type="number" name="min_price" value="{{ request.GET.min_price }}" class="form-control" placeholder="від" min="0">
+                    <input type="number" name="max_price" value="{{ request.GET.max_price }}" class="form-control" placeholder="до" min="0">
+                </div>
+            </div>
+
+            <div class="col-6 col-md-2">
+                <label class="form-label small mb-1">Сортування</label>
+                <select name="sort" class="form-select">
+                    <option value="">Новинки</option>
+                    <option value="price"  {% if request.GET.sort == "price" %}selected{% endif %}>Дешевші спершу</option>
+                    <option value="-price" {% if request.GET.sort == "-price" %}selected{% endif %}>Дорожчі спершу</option>
+                    <option value="name"   {% if request.GET.sort == "name" %}selected{% endif %}>За назвою (А–Я)</option>
+                </select>
+            </div>
+
+            <div class="col-12 d-flex gap-2 mt-2">
+                <button type="submit" class="btn btn-dark">Застосувати</button>
+                <a href="{% url 'shop:product_list' %}" class="btn btn-outline-secondary">Скинути</a>
+            </div>
+        </div>
+    </form>
+
+    {# ───────── Грід карток (products = товари поточної сторінки) ───────── #}
     <div class="row row-cols-1 row-cols-sm-2 row-cols-lg-3 g-4">
         {% for product in products %}
             <div class="col">
@@ -15,8 +69,11 @@
             </div>
         {% empty %}
             <div class="col-12">
-                <div class="alert alert-info">Поки що в каталозі немає товарів.</div>
+                <div class="alert alert-info mb-0">За вашим запитом товарів не знайдено. Спробуйте змінити фільтри.</div>
             </div>
         {% endfor %}
     </div>
+
+    {# ───────── Пагінація (зберігає активні фільтри) ───────── #}
+    {% include 'partials/pagination.html' %}
 {% endblock %}
