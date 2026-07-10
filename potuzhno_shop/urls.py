@@ -1,15 +1,15 @@
-from django.contrib import admin
+﻿from django.contrib import admin
 from django.urls import path, include
-
-urlpatterns = [
-    path('admin/', admin.site.urls),
-    path("", include("apps.shop.urls"))
-]
-from django.urls import path
+from django.shortcuts import redirect
 from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView
 
 urlpatterns = [
-    # ... ваші існуючі шляхи ...
+    path('', lambda request: redirect('swagger-ui')),
+    path('admin/', admin.site.urls),
+    path('api/shop/', include('apps.shop.urls')),
+    path('api/orders/', include('apps.orders.urls')),
+    path('api/accounts/', include('apps.accounts.urls')),
+    path('api/reviews/', include('apps.reviews.urls')),
     path('api/schema/', SpectacularAPIView.as_view(), name='schema'),
     path('api/docs/', SpectacularSwaggerView.as_view(url_name='schema'), name='swagger-ui'),
 ]

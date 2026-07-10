@@ -16,13 +16,15 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+
     'rest_framework',
     'drf_spectacular',
     'graphene_django',
-    'apps.shop',
-    'apps.accounts',
-    'apps.reviews',
-    'apps.orders',
+
+    'apps.shop.apps.ShopConfig',
+    'apps.accounts.apps.AccountsConfig',
+    'apps.orders.apps.OrdersConfig',
+    'apps.reviews.apps.ReviewsConfig',
 ]
 
 DATABASES = {
@@ -75,4 +77,11 @@ SPECTACULAR_SETTINGS = {
     'TITLE': 'Potuzhno Shop API',
     'DESCRIPTION': 'API для інтернет-магазину ПОТУЖНО',
     'VERSION': '1.0.0',
+}
+
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    ),
+    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
 }
