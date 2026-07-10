@@ -29,6 +29,10 @@
             <h1 class="h3">{{ product.name }}</h1>
 
             <div class="d-flex flex-wrap gap-2 mb-3">
+                {# Бренд — FK (Рів. 9) #}
+                {% if product.brand %}
+                    <span class="badge text-bg-dark">{{ product.brand.name }}</span>
+                {% endif %}
                 <span class="badge text-bg-light border">{{ product.get_audience_display }}</span>
                 {% if product.category %}
                     <span class="badge text-bg-light border">{{ product.category.name }}</span>
@@ -43,17 +47,51 @@
                 <p class="text-danger">Немає в наявності</p>
             {% endif %}
 
+            {# Доступні розміри — M2M Product ↔ Size (Рів. 9): звертаємось через .all #}
+            <div class="mb-3">
+                <span class="text-muted small d-block mb-1">Доступні розміри:</span>
+                <div class="d-flex flex-wrap gap-2">
+                    {% for size in product.sizes.all %}
+                        <span class="btn btn-outline-dark btn-sm size-btn">{{ size.name }}</span>
+                    {% empty %}
+                        <span class="text-muted small">розміри уточнюються</span>
+                    {% endfor %}
+                </div>
+            </div>
+
             {% if product.description %}
                 <h2 class="h6 mt-4">Опис</h2>
                 {{ product.description|linebreaks }}
             {% endif %}
 
-            {# Кнопка «у кошик» поки демонстраційна — логіку додамо на Рів. 9–14 #}
-            <button type="button" class="btn btn-dark btn-lg" {% if not product.stock %}disabled{% endif %}>🛒 Додати в кошик (скоро)</button>
+            {# Кошик і «обране» поки демонстраційні — логіку додамо на Рів. 12–15 #}
+            <div class="d-flex gap-2 mt-3">
+                <button type="button" class="btn btn-dark btn-lg" {% if not product.stock %}disabled{% endif %}>🛒 Додати в кошик (скоро)</button>
+                <button type="button" class="btn btn-outline-danger btn-lg">♡ В обране</button>
+            </div>
 
             <p class="mt-4">
                 <a href="{% url 'shop:product_list' %}" class="link-secondary">← повернутись до каталогу</a>
             </p>
         </div>
     </div>
+
+    {# ───────── Відгуки — зворотний FK (Рів. 9): product.reviews ───────── #}
+    <hr class="my-5">
+    <h2 class="h4 mb-3">Відгуки <span class="text-muted fs-6">({{ product.reviews.count }})</span></h2>
+
+    {% for review in product.reviews.all %}
+        <div class="border-bottom pb-3 mb-3">
+            <div class="d-flex justify-content-between">
+                <strong>{{ review.user.username }}</strong>
+                <span class="text-warning">{% for _ in "12345"|make_list %}{% if forloop.counter <= review.rating %}★{% else %}☆{% endif %}{% endfor %}</span>
+            </div>
+            <div class="text-muted small mb-1">{{ review.created_at|date:"d.m.Y" }}</div>
+            {% if review.text %}<p class="mb-0">{{ review.text }}</p>{% endif %}
+        </div>
+    {% empty %}
+        <p class="text-muted">Відгуків поки немає — станьте першим!</p>
+    {% endfor %}
+
+    <p class="text-muted small">Середній рейтинг порахуємо на Рівні 10 (агрегація).</p>
 {% endblock %}

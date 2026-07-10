@@ -16,6 +16,21 @@ class Category(models.Model):
         return self.name
 
 
+class Brand(models.Model):
+    name = models.CharField(max_length=200)
+    slug = models.SlugField(max_length=200)
+
+    def __str__(self):
+        return self.name
+
+
+class Size(models.Model):
+    name = models.CharField(max_length=10, unique=True)
+
+    def __str__(self):
+        return self.name
+
+
 class Product(models.Model):
     AUDIENCE_CHOICES = [
         ("unisex", "Унісекс"),
@@ -25,9 +40,10 @@ class Product(models.Model):
 
     category = models.ForeignKey(
         Category,
-        on_delete=models.SET_NULL,
-        null=True,
-        related_name="products"
+        on_delete=models.PROTECT,
+        null=False,
+        related_name="products",
+        related_query_name="product"
     )
     name = models.CharField(max_length=200)
     slug = models.SlugField(max_length=200)
@@ -53,6 +69,10 @@ class Product(models.Model):
     )
 
     stock = models.PositiveIntegerField(default=0, verbose_name="Залишок")
+
+    sizes = models.ManyToManyField(Size, blank=True)
+
+    brand = models.ForeignKey(Brand, on_delete=models.PROTECT, related_name="products")
 
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

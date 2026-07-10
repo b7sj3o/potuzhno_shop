@@ -1,26 +1,31 @@
 {# Фрагмент-картка товару. Очікує змінну `product` #}
 {# Підключається так: {% include 'partials/product_card.html' with product=product only %} #}
 <div class="card h-100 shadow-sm product-card">
-    {# Поки немає фото (ImageField зʼявиться на Рів. 7) — показуємо заглушку з першою літерою назви #}
+    {# Поки немає фото (ImageField — далі) — заглушка з першою літерою назви #}
     <div class="product-card__thumb">{{ product.name|first }}</div>
 
     <div class="card-body d-flex flex-column">
         <div class="d-flex justify-content-between align-items-center">
             <h5 class="card-title">{{ product.name }}</h5>
-            <div class="secondary s-6">{{ product.sku | default:"" }}</div>
+            <div class="secondary s-6">{{ product.sku|default:"" }}</div>
         </div>
 
+        {# Бренд — тепер FK (Рів. 9): product.brand → об'єкт Brand #}
+        {% if product.brand %}
+            <div class="text-muted small mb-1">{{ product.brand.name }}</div>
+        {% endif %}
 
+        {# Розміри — M2M (Рів. 9): треба .all, щоб отримати об'єкти #}
         <div class="mb-2">
-            {% for size in product.sizes %}
-                <span class="badge text-bg-light border">{{ size }}</span>
+            {% for size in product.sizes.all %}
+                <span class="badge text-bg-light border">{{ size.name }}</span>
             {% empty %}
                 <span class="text-muted small">розміри уточнюються</span>
             {% endfor %}
         </div>
 
         <div class="mb-2">
-            <span class="badge text-bg-light border">{{ product.audience }}</span>
+            <span class="badge text-bg-light border">{{ product.get_audience_display }}</span>
         </div>
 
         <div class="mt-auto d-flex justify-content-between align-items-center">

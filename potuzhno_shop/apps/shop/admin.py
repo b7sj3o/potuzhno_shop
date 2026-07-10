@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import Category, Product
+from .models import Category, Product, Size
 
 
 @admin.register(Category)
@@ -15,3 +15,6 @@ class ProductAdmin(admin.ModelAdmin):
     prepopulated_fields = {"slug": ("name",)}     # slug сам заповнюється з name
     list_filter = ("category", "is_active")
     search_fields = ("name", )
+
+
+admin.site.register(Size)
