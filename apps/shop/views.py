@@ -1,24 +1,12 @@
-﻿from rest_framework import generics
+﻿from rest_framework import viewsets, filters
+from django_filters.rest_framework import DjangoFilterBackend
 from .models import Product
 from .serializers import ProductSerializer
 
-# Стандартні класи для веб-сайту
-from django.views.generic import ListView, DetailView, TemplateView
-
-class HomeView(TemplateView):
-    template_name = 'shop/home.html'
-
-class ProductListView(ListView):
-    model = Product
-    template_name = 'shop/product_list.html'
-    context_object_name = 'products'
-
-class ProductDetailView(DetailView):
-    model = Product
-    template_name = 'shop/product_detail.html'
-    context_object_name = 'product'
-
-# API-представлення
-class ProductListAPIView(generics.ListCreateAPIView):
+class ProductViewSet(viewsets.ModelViewSet):
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
+    filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
+    filterset_fields = ['price']
+    search_fields = ['name', 'description']
+    ordering_fields = ['price', 'stock']
