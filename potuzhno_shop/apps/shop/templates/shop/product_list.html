@@ -44,6 +44,16 @@
                 </div>
             </div>
 
+            {# Фільтр за рейтингом — працює по анотації avg_rating (Рів. 10) #}
+            <div class="col-6 col-md-2">
+                <label class="form-label small mb-1">Рейтинг</label>
+                <select name="min_rating" class="form-select">
+                    <option value="">Будь-який</option>
+                    <option value="4" {% if request.GET.min_rating == "4" %}selected{% endif %}>4★ і вище</option>
+                    <option value="3" {% if request.GET.min_rating == "3" %}selected{% endif %}>3★ і вище</option>
+                </select>
+            </div>
+
             <div class="col-6 col-md-2">
                 <label class="form-label small mb-1">Сортування</label>
                 <select name="sort" class="form-select">
@@ -51,6 +61,7 @@
                     <option value="price"  {% if request.GET.sort == "price" %}selected{% endif %}>Дешевші спершу</option>
                     <option value="-price" {% if request.GET.sort == "-price" %}selected{% endif %}>Дорожчі спершу</option>
                     <option value="name"   {% if request.GET.sort == "name" %}selected{% endif %}>За назвою (А–Я)</option>
+                    <option value="-avg_rating" {% if request.GET.sort == "-avg_rating" %}selected{% endif %}>За рейтингом</option>
                 </select>
             </div>
 

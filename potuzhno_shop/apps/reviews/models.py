@@ -7,12 +7,14 @@ class Review(models.Model):
 
     user = models.ForeignKey(
         settings.AUTH_USER_MODEL,
-        on_delete=models.CASCADE
+        on_delete=models.CASCADE,
+        related_name="reviews"
     )
 
     product = models.ForeignKey(
         "shop.Product",
-        on_delete=models.CASCADE
+        on_delete=models.CASCADE,
+        related_name="reviews"
     )
 
     rating = models.PositiveIntegerField(default=1, choices=RATING_CHOICES)

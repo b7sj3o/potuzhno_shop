@@ -15,6 +15,17 @@
             <div class="text-muted small mb-1">{{ product.brand.name }}</div>
         {% endif %}
 
+        {# Рейтинг — з annotate() (Рів. 10): avg_rating / reviews_count #}
+        <div class="small mb-1">
+            {% if product.reviews_count %}
+                <span class="text-warning">★</span>
+                <span class="fw-semibold">{{ product.avg_rating|floatformat:1 }}</span>
+                <span class="text-muted">({{ product.reviews_count }})</span>
+            {% else %}
+                <span class="text-muted">Ще без відгуків</span>
+            {% endif %}
+        </div>
+
         {# Розміри — M2M (Рів. 9): треба .all, щоб отримати об'єкти #}
         <div class="mb-2">
             {% for size in product.sizes.all %}

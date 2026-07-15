@@ -39,6 +39,15 @@
                 {% endif %}
             </div>
 
+            {# Рейтинг — з annotate() (Рів. 10) #}
+            {% if product.reviews_count %}
+                <div class="mb-2">
+                    <span class="text-warning fs-5">★</span>
+                    <span class="fw-semibold">{{ product.avg_rating|floatformat:1 }}</span>
+                    <span class="text-muted small">· {{ product.reviews_count }} відгук(ів)</span>
+                </div>
+            {% endif %}
+
             <p class="display-6 fw-bold text-success">{{ product.price }} грн</p>
 
             {% if product.stock > 0 %}
@@ -87,7 +96,12 @@
 
     {# ───────── Відгуки — зворотний FK (Рів. 9): product.reviews ───────── #}
     <hr class="my-5">
-    <h2 class="h4 mb-3">Відгуки <span class="text-muted fs-6">({{ product.reviews.count }})</span></h2>
+    <h2 class="h4 mb-3">
+        Відгуки <span class="text-muted fs-6">({{ product.reviews_count|default:0 }})</span>
+        {% if product.avg_rating %}
+            <span class="text-warning fs-6 ms-2">★ {{ product.avg_rating|floatformat:1 }}</span>
+        {% endif %}
+    </h2>
 
     {% for review in product.reviews.all %}
         <div class="border-bottom pb-3 mb-3">
@@ -101,6 +115,4 @@
     {% empty %}
         <p class="text-muted">Відгуків поки немає — станьте першим!</p>
     {% endfor %}
-
-    <p class="text-muted small">Середній рейтинг порахуємо на Рівні 10 (агрегація).</p>
 {% endblock %}
