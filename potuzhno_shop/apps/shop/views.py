@@ -1,6 +1,9 @@
 from django.http import  Http404
 from django.db.models import Q, F
 from django.views.generic import TemplateView, ListView, DetailView
+from django.contrib.auth.decorators import login_required
+from django.shortcuts import render, get_object_or_404, redirect
+from django.contrib.auth.mixins import LoginRequiredMixin
 
 
 from .models import Product, Category
@@ -87,6 +90,18 @@ class ProductDetailView(DetailView):
     context_object_name = "product"
     model = Product
 
-    # def get_queryset(self):
-    #     return Product.objects.with_rating().select_related("category", "brand")
+@login_required
+def toggle_favourite(request, slug):
+    user_profile = request.user.profile
+    product = get_object_or_404(Product, slug=slug)
+    if user_profile.favourites.filter(pk=product.pk).exists():
+        user_profile.favourites.remove(product)
+    else:
+        user_profile.favourites.add(product)
+    return redirect("shop:product_detail", slug=slug)
 
+class FavouriteListView(LoginRequiredMixin, ProductListView):
+    def get_queryset(self):
+        return super().get_queryset().filter(
+            favourited_by=self.request.user.profile
+        )

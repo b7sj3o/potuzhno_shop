@@ -14,7 +14,6 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='product',
             name='brand',
-            field=models.ForeignKey(default=1, on_delete=django.db.models.deletion.PROTECT, related_name='products', to='shop.brand'),
-            preserve_default=False,
+            field=models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, related_name='products', to='shop.brand'),
         ),
     ]
