@@ -29,6 +29,12 @@
                         {# Кошик / профіль зʼявляться на Рів. 9–15, тоді додамо посилання сюди #}
                     </ul>
                 </div>
+
+                {% if user.is_authenticated %}
+                <h1 style="color: white">Вітаю, {{ user.username }}</h1>
+                {% else %}
+                <h1 style="color: white">Увійти</h1>
+                {% endif%}
             </div>
         </nav>
     </header>

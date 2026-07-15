@@ -1,5 +1,5 @@
 from django.db import models
-
+from django.db.models import Avg, Count
 
 class Category(models.Model):
     name = models.CharField(max_length=200)
@@ -29,6 +29,16 @@ class Size(models.Model):
 
     def __str__(self):
         return self.name
+
+class ProductQuerySet(models.QuerySet):
+    def active(self):
+        return self.filter(is_active=True)
+
+    def with_rating(self):
+        return self.annotate(
+            avg_rating=Avg("reviews__rating"),
+            reviews_count=Count("reviews", distinct=True),
+        )
 
 
 class Product(models.Model):
@@ -82,4 +92,7 @@ class Product(models.Model):
 
     def __str__(self):
         return self.name
+
+    objects = ProductQuerySet.as_manager()
+
 

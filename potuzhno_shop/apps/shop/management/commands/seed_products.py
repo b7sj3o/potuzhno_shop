@@ -55,15 +55,22 @@ PRODUCTS = [
 ]
 
 # (username, first_name)
-USERS = [("demo1", "Олег"), ("demo2", "Марта")]
+USERS = [("demo1", "Олег"), ("demo2", "Марта"), ("demo3", "Ігор")]
 
-# (username, product_slug, rating, text)
+# (username, product_slug, rating, text) — навмисно різні рейтинги, щоб працював фільтр/сорт за рейтингом
 REVIEWS = [
     ("demo1", "hoodie-oversize", 5, "Топ худі — тепле, не розтягнулось після прання."),
     ("demo2", "hoodie-oversize", 4, "Гарне, але розмір трохи завеликий, беріть менший."),
     ("demo1", "sneakers-runner", 5, "Легкі й зручні, добре тримають стопу на бігу."),
+    ("demo3", "sneakers-runner", 5, "Найкращі кросівки за цю ціну."),
     ("demo2", "tshirt-slim", 4, "Приємна тканина, сидить по фігурі."),
     ("demo1", "jacket-bomber", 3, "Загалом норм, але блискавка спершу трохи туга."),
+    ("demo2", "jacket-bomber", 2, "Очікував більшого за таку ціну."),
+    ("demo3", "tshirt-basic", 5, "Базова футболка, яку ношу щодня."),
+    ("demo1", "tshirt-basic", 4, "Гарна щільність тканини."),
+    ("demo2", "pants-cargo", 4, "Багато кишень, зручні."),
+    ("demo3", "sneakers-trail", 2, "Не зайшли — вузькі в носку."),
+    ("demo1", "hoodie-crop", 5, "Дівчині зайшло, якість супер."),
 ]
 
 FAVORITES = {
@@ -86,8 +93,9 @@ class Command(BaseCommand):
             p, was_created = Product.objects.get_or_create(
                 slug=slug,
                 defaults={
-                    "name": name, "category": cats[cat], "price": Decimal(price),
-                    "audience": audience, "stock": stock, "is_featured": featured, "sku": sku,
+                    "name": name, "category": cats[cat], "brand": brands[brand],
+                    "price": Decimal(price), "audience": audience,
+                    "stock": stock, "is_featured": featured, "sku": sku,
                 },
             )
             p.brand = brands[brand]

@@ -1,5 +1,7 @@
 from django.http import  Http404
+from django.db.models import Q, F
 from django.views.generic import TemplateView, ListView, DetailView
+
 
 from .models import Product, Category
 
@@ -10,7 +12,7 @@ class HomeView(TemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
-        context["featured"] = Product.objects.filter(is_featured=True)[:3]
+        context["featured"] = Product.objects.filter(is_featured=True).with_rating()[:3]
 
         return context
 
@@ -20,15 +22,30 @@ class ProductListView(ListView):
     context_object_name = "products"
     model = Product
     paginate_by = 10
-    ALLOWED_SORT = {"price", "-price", "name"}
+
+    SORT_MAP = {
+        "price": F("price").asc(),
+        "-price": F("price").desc(),
+        "name": F("name").asc(),
+        "-avg_rating": F("avg_rating").desc(nulls_last=True),
+    }
 
     def get_queryset(self):
-        qs = Product.objects.filter(is_active=True).select_related("category")
+        qs = (
+            Product.objects.active()
+            .with_rating()
+            .select_related("category")
+            .prefetch_related("sizes")
+        )
         params = self.request.GET
 
         q = params.get("q", "")
         if q:
-            qs = qs.filter(name__icontains=q)
+            qs = qs.filter(
+                Q(name__icontains=q)
+                | Q(brand__name__icontains=q)
+                | Q(category__name__icontains=q)
+            )
 
         category = params.get("category", "")
         if category:
@@ -46,9 +63,13 @@ class ProductListView(ListView):
         if max_price:
             qs = qs.filter(price__lte=max_price)
 
+        min_rating = params.get("min_rating", "")
+        if min_rating:
+            qs = qs.filter(avg_rating__gte=min_rating)
+
         sort = params.get("sort", "")
-        if sort in self.ALLOWED_SORT:
-            qs = qs.order_by(sort)
+        if sort in self.SORT_MAP:
+            qs = qs.order_by(self.SORT_MAP.get(sort))
 
         return qs
 
@@ -65,4 +86,7 @@ class ProductDetailView(DetailView):
     template_name = "shop/product_detail.html"
     context_object_name = "product"
     model = Product
+
+    # def get_queryset(self):
+    #     return Product.objects.with_rating().select_related("category", "brand")
 
