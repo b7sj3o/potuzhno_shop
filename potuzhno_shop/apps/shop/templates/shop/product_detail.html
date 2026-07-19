@@ -76,7 +76,7 @@
             {# Кошик і «обране» поки демонстраційні — логіку додамо на Рів. 12–15 #}
             <div class="d-flex gap-2 mt-3">
                 <button type="button" class="btn btn-dark btn-lg" {% if not product.stock %}disabled{% endif %}>🛒 Додати в кошик (скоро)</button>
-                <form action="{% url 'shop:toggle_favourite' product.slug %}" method="post" class="d-inline">
+                <form action="{% url 'accounts:favourite_toggle' product.slug %}" method="post" class="d-inline">
                     {% csrf_token %}
                     <button type="submit" class="btn btn-outline-danger btn-lg">
                         {% if product in request.user.profile.favourites.all %}
