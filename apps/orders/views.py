@@ -1,16 +1,13 @@
-﻿from rest_framework import viewsets, permissions, status
+from rest_framework.views import APIView
 from rest_framework.response import Response
-from .models import Order
-from .serializers import OrderSerializer
-from .services import create_order_from_cart
-from apps.cart.models import Cart
+from drf_spectacular.utils import extend_schema, OpenApiTypes
+from .services import get_orders_statistics
 
-class OrderViewSet(viewsets.ModelViewSet):
-    permission_classes = [permissions.IsAuthenticated]
-    serializer_class = OrderSerializer
-    queryset = Order.objects.all()
-
-    def perform_create(self, serializer):
-        cart = Cart.objects.get(user=self.request.user)
-        address = self.request.data.get('address')
-        create_order_from_cart(self.request.user, cart, address)
+class OrderStatisticsView(APIView):
+    @extend_schema(
+        summary="Отримати статистику замовлень",
+        description="Повертає загальну кількість замовлень та суму продажів.",
+        responses={200: OpenApiTypes.OBJECT}
+    )
+    def get(self, request):
+        return Response(get_orders_statistics())

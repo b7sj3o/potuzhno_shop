@@ -1,4 +1,4 @@
-﻿from django.contrib import admin
+from django.contrib import admin
 from .models import Order, OrderItem
 
 class OrderItemInline(admin.TabularInline):
@@ -7,5 +7,5 @@ class OrderItemInline(admin.TabularInline):
 
 @admin.register(Order)
 class OrderAdmin(admin.ModelAdmin):
-    list_display = ['id', 'created_at', 'is_paid']
+    list_display = ['id', 'created_at', 'total_price']
     inlines = [OrderItemInline]

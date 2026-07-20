@@ -1,19 +1,21 @@
-﻿from .models import Order, OrderItem
+from django.db.models import Sum, Count
+from apps.orders.models import Order
+from django.utils import timezone
+from datetime import timedelta
+from django.db import models
 
-def create_order_from_cart(user, cart, address):
-    order = Order.objects.create(user=user, address=address)
-    total = 0
-    for item in cart.items.all():
-        price = item.variant.product.price
-        OrderItem.objects.create(
-            order=order,
-            variant=item.variant,
-            quantity=item.quantity,
-            price=price
-        )
-        total += price * item.quantity
-    
-    order.total_price = total
-    order.save()
-    cart.items.all().delete() # Очищаємо кошик після створення замовлення
-    return order
+def get_orders_statistics():
+    now = timezone.now()
+    month_ago = now - timedelta(days=30)
+    stats = Order.objects.aggregate(
+        total_revenue=Sum('total_price'),
+        total_orders=Count('id'),
+        recent_orders=Count('id', filter=models.Q(created_at__gte=month_ago))
+    )
+    return stats
+
+
+def validate_stock(variant, quantity):
+    if variant.stock < quantity:
+        return False, f'Недостатньо товару на складі. Доступно: {variant.stock}'
+    return True, 'OK'
