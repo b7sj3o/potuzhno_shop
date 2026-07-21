@@ -1,0 +1,44 @@
+﻿<!DOCTYPE html>
+<html lang='uk'>
+<head>
+    <meta charset='UTF-8'>
+    <meta name='viewport' content='width=device-width, initial-scale=1.0'>
+    <title>ПОТУЖНО Shop - Спортивний одяг та взуття</title>
+    <script src='https://cdn.tailwindcss.com'></script>
+</head>
+<body class='bg-gray-50 text-gray-900'>
+    <header class='bg-black text-white shadow-md'>
+        <div class='container mx-auto px-6 py-4 flex justify-between items-center'>
+            <h1 class='text-2xl font-black tracking-wider text-orange-500'>ПОТУЖНО SHOP</h1>
+            <div class='flex items-center space-x-6'>
+                <select id='langSelect' class='bg-gray-800 text-white px-2 py-1 rounded text-sm'>
+                    <option value='uk'>🇺🇦 UA</option>
+                    <option value='en'>🇬🇧 EN</option>
+                </select>
+                <button id='cartBtn' class='relative bg-orange-600 px-4 py-2 rounded-lg font-bold hover:bg-orange-700 transition'>
+                    🛒 <span id='cartCount'>0</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <section class='bg-gradient-to-r from-orange-600 to-red-600 text-white py-16 text-center'>
+        <div class='container mx-auto px-6'>
+            <h2 id='heroTitle' class='text-4xl font-extrabold mb-4'>Преміальний спортивний одяг та взуття</h2>
+            <p id='heroSubtitle' class='text-lg opacity-90'>Швидка відправка поштою по всій Україні 🚀</p>
+        </div>
+    </section>
+
+    <main class='container mx-auto px-6 py-12'>
+        <h3 id='catalogTitle' class='text-2xl font-bold mb-8 text-gray-800'>Каталог товарів</h3>
+        <div id='productList' class='grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6'>
+            </div>
+    </main>
+
+    <footer class='bg-gray-900 text-gray-400 py-6 text-center mt-12'>
+        <p>&copy; 2026 ПОТУЖНО Shop. All rights reserved.</p>
+    </footer>
+
+    <script src='app.js'></script>
+</body>
+</html>
