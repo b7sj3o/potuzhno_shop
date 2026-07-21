@@ -1,4 +1,13 @@
-﻿from apps.shop.models import Product
+﻿import os
+import django
+
+# 1. Ініціалізуємо налаштування Django
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'potuzhno_shop.settings')
+django.setup()
+
+# 2. Тепер безпечно імпортувати моделі
+from apps.shop.models import Product
+
 p = Product.objects.first()
 if p:
     print(f'Товар {p.name} знайдено, статус: активний')
