@@ -38,7 +38,7 @@ async function fetchProducts() {
             
             card.innerHTML = '<div class=\'relative h-72 bg-zinc-950 overflow-hidden\'>' +
                 '<img src=\'' + imgSrc + '\' class=\'w-full h-full object-cover group-hover:scale-105 transition duration-500\'>' +
-                '<span class=\'absolute top-4 left-4 bg-orange-600 text-white text-xs px-3 py-1 rounded-full font-black uppercase tracking-wider\'>STUFF</span>' +
+                '<span class=\'absolute top-4 left-4 bg-orange-600 text-white text-xs px-3 py-1 rounded-full font-black uppercase tracking-wider\'>POTUZHNO</span>' +
                 '</div>' + 
                 '<div class=\'p-6 flex flex-col flex-grow justify-between\'>' + 
                 '<div>' +
@@ -102,3 +102,4 @@ function checkoutOrder() {
 } 
 
 fetchProducts();
+
