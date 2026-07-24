@@ -6,6 +6,7 @@ from .views import (
     ProductDetailView,
     toggle_favourite,
     FavouriteListView,
+    contact
 )
 
 
@@ -17,4 +18,6 @@ urlpatterns = [
     path("products/<slug:slug>/", ProductDetailView.as_view(), name="product_detail"),
     path("favourite/toggle/<slug:slug>", toggle_favourite, name="toggle_favourite"),
     path("favourites/", FavouriteListView.as_view(), name="favourite_list"),
+
+    path("contact/", contact, name="contact")
 ]

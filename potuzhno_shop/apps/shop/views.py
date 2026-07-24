@@ -2,11 +2,12 @@ from django.http import  Http404
 from django.db.models import Q, F
 from django.views.generic import TemplateView, ListView, DetailView
 from django.contrib.auth.decorators import login_required
-from django.shortcuts import render, get_object_or_404, redirect
+from django.shortcuts import get_object_or_404, redirect, reverse, render
 from django.contrib.auth.mixins import LoginRequiredMixin
 
 
 from .models import Product, Category
+from .forms import ProductFilterForm, ContactForm
 
 
 class HomeView(TemplateView):
@@ -40,47 +41,40 @@ class ProductListView(ListView):
             .select_related("category")
             .prefetch_related("sizes")
         )
-        params = self.request.GET
 
-        q = params.get("q", "")
-        if q:
+        self.filter_form = ProductFilterForm(self.request.GET or None)
+
+        if not self.filter_form.is_valid():
+            return qs
+
+        data = self.filter_form.cleaned_data
+
+        if data.get("q"):
             qs = qs.filter(
-                Q(name__icontains=q)
-                | Q(brand__name__icontains=q)
-                | Q(category__name__icontains=q)
+                Q(name__icontains=data["q"])
+                | Q(brand__name__icontains=data["q"])
+                | Q(category__name__icontains=data["q"])
             )
+        if data.get("category"):
+            qs = qs.filter(category=data["category"])
+        if data.get("audience"):
+            qs = qs.filter(audience=data["audience"])
+        if data.get("min_price"):
+            qs = qs.filter(price__gte=data["min_price"])
+        if data.get("max_price"):
+            qs = qs.filter(price__lte=data["max_price"])
+        if data.get("min_rating"):
+            qs = qs.filter(avg_rating__gte=data["min_rating"])
 
-        category = params.get("category", "")
-        if category:
-            qs = qs.filter(category__slug=category)
-
-        audience = params.get("audience", "")
-        if audience:
-            qs = qs.filter(audience=audience)
-
-        min_price = params.get("min_price", "")
-        if min_price:
-            qs = qs.filter(price__gte=min_price)
-
-        max_price = params.get("max_price", "")
-        if max_price:
-            qs = qs.filter(price__lte=max_price)
-
-        min_rating = params.get("min_rating", "")
-        if min_rating:
-            qs = qs.filter(avg_rating__gte=min_rating)
-
-        sort = params.get("sort", "")
-        if sort in self.SORT_MAP:
-            qs = qs.order_by(self.SORT_MAP.get(sort))
+        if data.get("sort") in self.SORT_MAP:
+            qs = qs.order_by(self.SORT_MAP.get(data["sort"]))
 
         return qs
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
-        context["audience_choices"] = Product.AUDIENCE_CHOICES
-        context["categories"] = Category.objects.all()
+        context["filter_form"] = self.filter_form
 
         return context
 
@@ -89,6 +83,7 @@ class ProductDetailView(DetailView):
     template_name = "shop/product_detail.html"
     context_object_name = "product"
     model = Product
+
 
 @login_required
 def toggle_favourite(request, slug):
@@ -100,8 +95,26 @@ def toggle_favourite(request, slug):
         user_profile.favourites.add(product)
     return redirect("shop:product_detail", slug=slug)
 
+
 class FavouriteListView(LoginRequiredMixin, ProductListView):
     def get_queryset(self):
         return super().get_queryset().filter(
             favourited_by=self.request.user.profile
         )
+
+
+def contact(request):
+    if request.method == "POST":
+        form = ContactForm(request.POST)
+
+        if form.is_valid():
+            data = form.cleaned_data
+
+            print(f"[CONTACT] {data['name']} <{data['email']}> "
+                  f"[{data['subject']}] #{data['order_number'] or '—'}: {data['message']}")
+
+            return redirect(f"{reverse('shop:contact')}?sent=1")
+    else:
+        form = ContactForm()
+
+    return render(request, "shop/contact.html", {"form": form})
