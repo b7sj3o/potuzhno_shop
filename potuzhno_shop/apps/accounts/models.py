@@ -11,9 +11,9 @@ class Profile(models.Model):
     address = models.CharField(max_length=255, blank=True)
 
     # TODO: добавити CRUD для добавлення в улюблені + сторінку улюблених (вибраних) товарів
-    favorites = models.ManyToManyField(
+    favourites = models.ManyToManyField(
         "shop.Product",
-        related_name="favorited_by",
+        related_name="favourited_by",
         blank=True
     )
 
