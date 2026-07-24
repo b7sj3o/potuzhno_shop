@@ -33,7 +33,7 @@ async function fetchProducts() {
 
         products.forEach(function(product) { 
             const card = document.createElement('div'); 
-            card.className = 'bg-zinc-900 border border-zinc-800 rounded-3xl overflow-hidden hover:border-orange-500/50 transition duration-300 flex flex-col justify-between group'; 
+            card.className = 'product-card overflow-hidden flex flex-col justify-between group'; 
             const imgSrc = product.image ? product.image : 'https://images.unsplash.com/photo-1521572267360-ee0c2909d518?w=600&auto=format&fit=crop&q=80';
             
             card.innerHTML = '<div class=\'relative h-72 bg-zinc-950 overflow-hidden\'>' +
