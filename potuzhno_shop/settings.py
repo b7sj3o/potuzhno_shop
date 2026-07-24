@@ -63,6 +63,7 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'potuzhno_shop.wsgi.application'
 STATIC_URL = 'static/'
+STATIC_ROOT = BASE_DIR / 'staticfiles'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 REST_FRAMEWORK = {
