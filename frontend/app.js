@@ -1,3 +1,4 @@
+const API_URL = 'http://127.0.0.1:8000/api/';
 ﻿document.addEventListener('DOMContentLoaded', () => {
     loadProducts('all');
     updateCartCount();
@@ -346,4 +347,245 @@ function addSelectedSizeToCart(productId) {
     const activeSizeBtn = document.querySelector('#product-detail-section button[data-size].bg-black');
     const selectedSize = activeSizeBtn ? activeSizeBtn.dataset.size : 'M';
     addToCart(productId, selectedSize);
+}
+
+
+function checkoutOrder() {
+    const cart = JSON.parse(localStorage.getItem('potuzhno_cart') || '[]');
+    if (!cart || cart.length === 0) {
+        alert('Ваш кошик порожній!');
+        return;
+    }
+    
+    const checkoutModal = document.getElementById('checkout-modal');
+    if (checkoutModal) {
+        if (typeof closeCartModal === 'function') closeCartModal();
+        checkoutModal.classList.remove('hidden');
+    } else {
+        alert('Замовлення успішно оформлено! Дякуємо за покупку в ПОТУЖНО Shop 🔥');
+        localStorage.removeItem('potuzhno_cart');
+        if (typeof updateCartUI === 'function') updateCartUI();
+        if (typeof closeCartModal === 'function') closeCartModal();
+        location.reload();
+    }
+}
+
+
+let currentCategory = 'all';
+let currentSize = 'all';
+
+function setCategoryFilter(cat, btn) {
+    currentCategory = cat;
+    document.querySelectorAll('.cat-btn').forEach(b => {
+        b.classList.remove('bg-orange-500', 'text-white', 'shadow-md');
+        b.classList.add('bg-neutral-800', 'text-neutral-300');
+    });
+    btn.classList.add('bg-orange-500', 'text-white', 'shadow-md');
+    btn.classList.remove('bg-neutral-800', 'text-neutral-300');
+    applyFilters();
+}
+
+function setSizeFilter(size, btn) {
+    currentSize = size;
+    document.querySelectorAll('.size-filter-btn').forEach(b => {
+        b.classList.remove('bg-white', 'text-black');
+        b.classList.add('bg-neutral-800', 'text-neutral-300');
+    });
+    btn.classList.add('bg-white', 'text-black');
+    btn.classList.remove('bg-neutral-800', 'text-neutral-300');
+    applyFilters();
+}
+
+function applyFilters() {
+    const searchVal = (document.getElementById('search-input')?.value || '').toLowerCase();
+    const sortVal = document.getElementById('sort-select')?.value || 'default';
+
+    let filtered = rawProductsList.filter(p => {
+        const name = (p.name || '').toLowerCase();
+        const desc = (p.description || '').toLowerCase();
+        const category = (p.category_name || p.category?.name || '').toLowerCase();
+
+        const matchesSearch = name.includes(searchVal) || desc.includes(searchVal);
+
+        let matchesCategory = true;
+        if (currentCategory !== 'all') {
+            matchesCategory = name.includes(currentCategory) || desc.includes(currentCategory) || category.includes(currentCategory);
+        }
+
+        let matchesSize = true;
+        if (currentSize !== 'all') {
+            matchesSize = desc.includes(currentSize) || name.includes(currentSize) || true;
+        }
+
+        return matchesSearch && matchesCategory && matchesSize;
+    });
+
+    if (sortVal === 'price-asc') {
+        filtered.sort((a, b) => parseFloat(a.price) - parseFloat(b.price));
+    } else if (sortVal === 'price-desc') {
+        filtered.sort((a, b) => parseFloat(b.price) - parseFloat(a.price));
+    } else if (sortVal === 'name-asc') {
+        filtered.sort((a, b) => a.name.localeCompare(b.name));
+    }
+
+    renderProductsGrid(filtered);
+}
+
+
+
+let activeCategory = 'all';
+
+function filterCategory(catKey, btnElement) {
+    activeCategory = catKey;
+
+    // 1. Оновлення активної кнопки (підсвічування помаранчевим)
+    const buttons = document.querySelectorAll('.cat-btn, [onclick*="filterCategory"]');
+    buttons.forEach(b => {
+        b.classList.remove('bg-orange-500', 'text-white', 'shadow-md');
+        b.classList.add('bg-neutral-800', 'text-neutral-300');
+    });
+
+    if (btnElement) {
+        btnElement.classList.remove('bg-neutral-800', 'text-neutral-300');
+        btnElement.classList.add('bg-orange-500', 'text-white', 'shadow-md');
+    }
+
+    // Оновлення заголовку над каталогом
+    const titleEl = document.querySelector('#catalog-section h2, .catalog-title');
+    if (titleEl) {
+        const titleMap = {
+            'all': 'Всі товари каталогу',
+            'clothing': 'Одяг',
+            'shoes': 'Взуття',
+            'accessories': 'Аксесуари',
+            'men': 'Чоловіча колекція',
+            'women': 'Жіноча колекція',
+            'kids': 'Дитяча колекція'
+        };
+        if (titleMap[catKey]) titleEl.innerText = titleMap[catKey];
+    }
+
+    applyFilters();
+}
+
+function applyFilters() {
+    const searchInput = document.getElementById('search-input');
+    const searchVal = (searchInput ? searchInput.value : '').toLowerCase();
+    const sortVal = document.getElementById('sort-select')?.value || 'default';
+
+    if (!Array.isArray(rawProductsList)) return;
+
+    let filtered = rawProductsList.filter(p => {
+        const name = (p.name || '').toLowerCase();
+        const desc = (p.description || '').toLowerCase();
+        const catName = (p.category_name || p.category?.name || p.category || '').toString().toLowerCase();
+
+        // 1. Пошуковий запит
+        const matchesSearch = !searchVal || name.includes(searchVal) || desc.includes(searchVal) || catName.includes(searchVal);
+
+        // 2. Розумне групування за категоріями
+        let matchesCategory = true;
+        if (activeCategory === 'clothing' || activeCategory === 'одяг') {
+            matchesCategory = catName.includes('одяг') || name.includes('світшот') || name.includes('штани') || name.includes('худі') || name.includes('футболка') || name.includes('куртка') || desc.includes('одяг') || desc.includes('якість');
+        } else if (activeCategory === 'shoes' || activeCategory === 'взуття') {
+            matchesCategory = catName.includes('взуття') || name.includes('кросівки') || name.includes('кеди') || name.includes('air') || name.includes('tech') || desc.includes('взуття');
+        } else if (activeCategory === 'accessories' || activeCategory === 'аксесуари') {
+            matchesCategory = catName.includes('аксесуар') || name.includes('сумка') || name.includes('кепка') || name.includes('шапка') || name.includes('рюкзак') || desc.includes('аксесуар');
+        } else if (activeCategory === 'men' || activeCategory === 'women' || activeCategory === 'kids') {
+            matchesCategory = true; // Показує всі товари під колекції
+        } else if (activeCategory !== 'all') {
+            matchesCategory = catName.includes(activeCategory) || name.includes(activeCategory) || desc.includes(activeCategory);
+        }
+
+        return matchesSearch && matchesCategory;
+    });
+
+    if (sortVal === 'price-asc') {
+        filtered.sort((a, b) => parseFloat(a.price) - parseFloat(b.price));
+    } else if (sortVal === 'price-desc') {
+        filtered.sort((a, b) => parseFloat(b.price) - parseFloat(a.price));
+    } else if (sortVal === 'name-asc') {
+        filtered.sort((a, b) => a.name.localeCompare(b.name));
+    }
+
+    renderProductsGrid(filtered);
+}
+
+
+
+let currentCatKey = 'all';
+
+function handleCatClick(catKey, btnEl) {
+    currentCatKey = catKey;
+
+    // Підсвічування активної кнопки
+    const allCatBtns = document.querySelectorAll('button[onclick*="handleCatClick"]');
+    allCatBtns.forEach(b => {
+        b.classList.remove('bg-orange-500', 'text-white', 'shadow-md', 'bg-gradient-to-r', 'from-orange-500', 'to-amber-500');
+        b.classList.add('bg-neutral-800', 'text-neutral-300');
+    });
+
+    if (btnEl) {
+        btnEl.classList.remove('bg-neutral-800', 'text-neutral-300');
+        btnEl.classList.add('bg-orange-500', 'text-white', 'shadow-md');
+    }
+
+    // Зміна заголовка
+    const catalogTitle = document.querySelector('h1, h2, .catalog-title');
+    const titleMap = {
+        'all': 'Всі товари каталогу',
+        'clothing': 'Одяг',
+        'shoes': 'Взуття',
+        'accessories': 'Аксесуари',
+        'men': 'Чоловіча колекція',
+        'women': 'Жіноча колекція',
+        'kids': 'Дитяча колекція'
+    };
+    if (catalogTitle && titleMap[catKey]) {
+        catalogTitle.textContent = titleMap[catKey];
+    }
+
+    applyFilters();
+}
+
+function applyFilters() {
+    const searchVal = (document.getElementById('search-input')?.value || '').toLowerCase().trim();
+    const sortVal = document.getElementById('sort-select')?.value || 'default';
+
+    if (!Array.isArray(rawProductsList)) return;
+
+    let filtered = rawProductsList.filter(p => {
+        const name = (p.name || '').toLowerCase();
+        const desc = (p.description || '').toLowerCase();
+        const cat = (p.category_name || p.category?.name || p.category || '').toString().toLowerCase();
+
+        // 1. Пошук
+        const matchesSearch = !searchVal || name.includes(searchVal) || desc.includes(searchVal) || cat.includes(searchVal);
+
+        # 2. Фільтрація за категорією
+        let matchesCategory = true;
+        if (currentCatKey === 'clothing') {
+            matchesCategory = cat.includes('одяг') || name.includes('світшот') || name.includes('штани') || name.includes('худі') || name.includes('футболка') || desc.includes('одяг');
+        } else if (currentCatKey === 'shoes') {
+            matchesCategory = cat.includes('взуття') || name.includes('кросівки') || name.includes('кеди') || name.includes('air') || name.includes('tech') || desc.includes('взуття');
+        } else if (currentCatKey === 'accessories') {
+            matchesCategory = cat.includes('аксесуар') || name.includes('сумка') || name.includes('кепка') || name.includes('шапка') || desc.includes('аксесуар');
+        } else if (['men', 'women', 'kids'].includes(currentCatKey)) {
+            matchesCategory = true;
+        } else if (currentCatKey !== 'all') {
+            matchesCategory = cat.includes(currentCatKey) || name.includes(currentCatKey);
+        }
+
+        return matchesSearch && matchesCategory;
+    });
+
+    if (sortVal === 'price-asc') {
+        filtered.sort((a, b) => parseFloat(a.price) - parseFloat(b.price));
+    } else if (sortVal === 'price-desc') {
+        filtered.sort((a, b) => parseFloat(b.price) - parseFloat(a.price));
+    } else if (sortVal === 'name-asc') {
+        filtered.sort((a, b) => a.name.localeCompare(b.name));
+    }
+
+    renderProductsGrid(filtered);
 }

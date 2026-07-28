@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="uk">
 <head>
     <meta charset="UTF-8">
@@ -31,21 +31,48 @@
             <p class="text-zinc-400 text-sm md:text-base max-w-lg mx-auto mb-8">Обирайте категорію: чоловічі, жіночі та дитячі речі 🖤</p>
             
             <div class="flex flex-wrap justify-center gap-3 mb-6">
-                <button onclick="switchCategory('all', 'Всі товари каталогу')" class="cat-btn px-5 py-2.5 rounded-xl font-extrabold text-sm bg-orange-600 text-white shadow-md transition">🔥 Всі товари</button>
-                <button onclick="switchCategory('clothing', 'Одяг')" class="cat-btn px-5 py-2.5 rounded-xl font-extrabold text-sm bg-zinc-900 text-zinc-300 border border-zinc-800 hover:border-orange-500 transition">👕 Одяг</button>
-                <button onclick="switchCategory('shoes', 'Взуття')" class="cat-btn px-5 py-2.5 rounded-xl font-extrabold text-sm bg-zinc-900 text-zinc-300 border border-zinc-800 hover:border-orange-500 transition">👟 Взуття</button>
+                <button onclick="handleCatClick(\'all\', this)" class="cat-btn px-5 py-2.5 rounded-xl font-extrabold text-sm bg-orange-600 text-white shadow-md transition">🔥 Всі товари</button>
+                <button onclick="handleCatClick(\'clothing\', this)" class="cat-btn px-5 py-2.5 rounded-xl font-extrabold text-sm bg-zinc-900 text-zinc-300 border border-zinc-800 hover:border-orange-500 transition">👕 Одяг</button>
+                <button onclick="handleCatClick(\'shoes\', this)" class="cat-btn px-5 py-2.5 rounded-xl font-extrabold text-sm bg-zinc-900 text-zinc-300 border border-zinc-800 hover:border-orange-500 transition">👟 Взуття</button>
                 <button onclick="switchCategory('accessories', 'Аксесуари')" class="cat-btn px-5 py-2.5 rounded-xl font-extrabold text-sm bg-zinc-900 text-zinc-300 border border-zinc-800 hover:border-orange-500 transition">🎒 Аксесуари</button>
             </div>
 
             <div class="flex flex-wrap justify-center gap-3">
-                <button onclick="switchCategory('male', 'Чоловіча колекція')" class="cat-btn px-4 py-2 rounded-lg font-bold text-xs bg-zinc-900 text-zinc-400 border border-zinc-800 hover:text-white transition">Чоловічі</button>
-                <button onclick="switchCategory('female', 'Жіноча колекція')" class="cat-btn px-4 py-2 rounded-lg font-bold text-xs bg-zinc-900 text-zinc-400 border border-zinc-800 hover:text-white transition">Жіночі</button>
-                <button onclick="switchCategory('kids', 'Дитяча колекція')" class="cat-btn px-4 py-2 rounded-lg font-bold text-xs bg-zinc-900 text-zinc-400 border border-zinc-800 hover:text-white transition">Дитячі</button>
+                <button onclick="handleCatClick(\'men\', this)" class="cat-btn px-4 py-2 rounded-lg font-bold text-xs bg-zinc-900 text-zinc-400 border border-zinc-800 hover:text-white transition">Чоловічі</button>
+                <button onclick="handleCatClick(\'women\', this)" class="cat-btn px-4 py-2 rounded-lg font-bold text-xs bg-zinc-900 text-zinc-400 border border-zinc-800 hover:text-white transition">Жіночі</button>
+                <button onclick="handleCatClick(\'kids\', this)" class="cat-btn px-4 py-2 rounded-lg font-bold text-xs bg-zinc-900 text-zinc-400 border border-zinc-800 hover:text-white transition">Дитячі</button>
             </div>
         </div>
     </section>
 
     <main class="container mx-auto px-6 py-16">
+
+            <div id="staff-toolbar" class="mb-8 space-y-4 bg-neutral-900/90 p-5 rounded-2xl border border-neutral-800 shadow-xl">
+                <div class="flex flex-col md:flex-row gap-4 justify-between items-center">
+                    <div class="relative w-full md:w-1/2">
+                        <i class="fa-solid fa-magnifying-glass absolute left-4 top-3.5 text-neutral-400"></i>
+                        <input type="text" id="search-input" oninput="applyFilters()" placeholder="Пошук оверсайз одягу, взуття, худі..." class="w-full pl-11 pr-4 py-2.5 bg-neutral-800 text-white rounded-xl text-sm border border-neutral-700 focus:outline-none focus:border-orange-500 transition">
+                    </div>
+                    <div class="flex gap-3 w-full md:w-auto justify-end">
+                        <select id="sort-select" onchange="applyFilters()" class="bg-neutral-800 text-white border border-neutral-700 rounded-xl px-4 py-2.5 text-sm font-semibold focus:outline-none focus:border-orange-500 cursor-pointer">
+                            <option value="default">⚡ Сортування: За замовчуванням</option>
+                            <option value="price-asc">💰 Ціна: від дешевших</option>
+                            <option value="price-desc">💎 Ціна: від дорогих</option>
+                            <option value="name-asc">🔤 Назва: А-Я</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="flex flex-wrap gap-2 pt-3 border-t border-neutral-800/60 items-center">
+                    <span class="text-xs uppercase font-extrabold text-neutral-400 mr-2 tracking-wider">Категорія:</span>
+                    <button type="button" onclick="handleCatClick('all', this)" class="cat-btn bg-orange-500 text-white font-bold text-xs px-4 py-2 rounded-xl transition shadow-md">🔥 Всі товари</button>
+                    <button type="button" onclick="handleCatClick('clothing', this)" class="cat-btn bg-neutral-800 hover:bg-neutral-700 text-neutral-300 font-bold text-xs px-4 py-2 rounded-xl transition">👕 Одяг</button>
+                    <button type="button" onclick="handleCatClick('shoes', this)" class="cat-btn bg-neutral-800 hover:bg-neutral-700 text-neutral-300 font-bold text-xs px-4 py-2 rounded-xl transition">👟 Взуття</button>
+                    <button type="button" onclick="handleCatClick('accessories', this)" class="cat-btn bg-neutral-800 hover:bg-neutral-700 text-neutral-300 font-bold text-xs px-4 py-2 rounded-xl transition">🛍️ Аксесуари</button>
+                </div>
+            </div>
+
+        <section id="product-detail-section" class="hidden mb-8"></section>
         <div id="productList" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6"></div>
             </section>
     </main>
