@@ -54,10 +54,10 @@ async function showProductDetail(productId) {
                         <div class="mb-6">
                             <label class="block text-sm font-semibold text-gray-700 uppercase tracking-wider mb-2">Оберіть розмір:</label>
                             <div class="flex gap-2">
-                                <button type="button" class="px-4 py-2 border rounded-lg hover:border-black focus:bg-black focus:text-white font-medium transition">S</button>
-                                <button type="button" class="px-4 py-2 border rounded-lg hover:border-black focus:bg-black focus:text-white font-medium transition">M</button>
-                                <button type="button" class="px-4 py-2 border rounded-lg hover:border-black focus:bg-black focus:text-white font-medium transition">L</button>
-                                <button type="button" class="px-4 py-2 border rounded-lg hover:border-black focus:bg-black focus:text-white font-medium transition">XL</button>
+                                <button type="button" data-size="S" onclick="selectSizeBtn(this)" class="px-4 py-2 border rounded-lg hover:border-black font-medium transition">S</button>
+                                <button type="button" data-size="M" onclick="selectSizeBtn(this)" class="px-4 py-2 border rounded-lg hover:border-black font-medium transition bg-black text-white">M</button>
+                                <button type="button" data-size="L" onclick="selectSizeBtn(this)" class="px-4 py-2 border rounded-lg hover:border-black font-medium transition">L</button>
+                                <button type="button" data-size="XL" onclick="selectSizeBtn(this)" class="px-4 py-2 border rounded-lg hover:border-black font-medium transition">XL</button>
                             </div>
                         </div>
 
@@ -67,7 +67,7 @@ async function showProductDetail(productId) {
                         </div>
                     </div>
 
-                    <button onclick="addToCart(${product.id})" class="bg-black text-white py-4 rounded-xl font-bold uppercase tracking-wider hover:bg-gray-800 transition shadow-lg w-full flex items-center justify-center gap-2">
+                    <button onclick="addSelectedSizeToCart(${product.id})" class="bg-black text-white py-4 rounded-xl font-bold uppercase tracking-wider hover:bg-gray-800 transition shadow-lg w-full flex items-center justify-center gap-2">
                         <i class="fa-solid fa-cart-shopping"></i> Додати у кошик
                     </button>
                 </div>
@@ -330,4 +330,20 @@ function logoutUser() {
     closeAccountModal();
     alert('Ви успішно вийшли з акаунту');
     location.reload();
+}
+
+function selectSizeBtn(btnElement) {
+    const allBtns = document.querySelectorAll('#product-detail-section button[data-size]');
+    allBtns.forEach(b => {
+        b.classList.remove('bg-black', 'text-white');
+        b.classList.add('border-gray-200');
+    });
+    btnElement.classList.add('bg-black', 'text-white');
+    btnElement.classList.remove('border-gray-200');
+}
+
+function addSelectedSizeToCart(productId) {
+    const activeSizeBtn = document.querySelector('#product-detail-section button[data-size].bg-black');
+    const selectedSize = activeSizeBtn ? activeSizeBtn.dataset.size : 'M';
+    addToCart(productId, selectedSize);
 }
