@@ -1,1 +1,1 @@
-﻿from .review import ReviewSerializer
+from .review import ReviewSerializer

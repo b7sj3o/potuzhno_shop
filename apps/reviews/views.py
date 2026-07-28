@@ -1,4 +1,4 @@
-﻿from rest_framework import viewsets
+from rest_framework import viewsets
 from .models import Review
 from .serializers import ReviewSerializer
 

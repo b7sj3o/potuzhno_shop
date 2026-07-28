@@ -1,4 +1,4 @@
-﻿from rest_framework import viewsets, permissions
+from rest_framework import viewsets, permissions
 from apps.cart.models import Cart
 from apps.cart.serializers.cart_serializers import CartSerializer
 
