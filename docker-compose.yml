@@ -1,10 +1,53 @@
+version: '3.8'
+
 services:
   db:
-    image: postgres:15
-    restart: always
+    image: postgres:16-alpine
+    container_name: potuzhno_db
     environment:
-      POSTGRES_DB: potuzhno_shop
-      POSTGRES_USER: potuzhno_shop
-      POSTGRES_PASSWORD: potuzhno_shop
+      POSTGRES_DB: potuzhno_db
+      POSTGRES_USER: potuzhno_user
+      POSTGRES_PASSWORD: potuzhno_password
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
     ports:
-      - "5433:5432"
+      - "5432:5432"
+
+  redis:
+    image: redis:7-alpine
+    container_name: potuzhno_redis
+    ports:
+      - "6379:6379"
+
+  web:
+    build: .
+    container_name: potuzhno_web
+    command: python manage.py runserver 0.0.0.0:8000
+    volumes:
+      - .:/app
+    ports:
+      - "8000:8000"
+    environment:
+      - DEBUG=1
+      - DATABASE_URL=postgres://potuzhno_user:potuzhno_password@db:5432/potuzhno_db
+      - REDIS_URL=redis://redis:6379/0
+    depends_on:
+      - db
+      - redis
+
+  celery:
+    build: .
+    container_name: potuzhno_celery
+    command: celery -A potuzhno_shop worker -l info
+    volumes:
+      - .:/app
+    environment:
+      - DEBUG=1
+      - DATABASE_URL=postgres://potuzhno_user:potuzhno_password@db:5432/potuzhno_db
+      - REDIS_URL=redis://redis:6379/0
+    depends_on:
+      - redis
+      - web
+
+volumes:
+  postgres_data:
