@@ -1,6 +1,8 @@
 ﻿from django.contrib import admin
 from django.urls import path, include
 from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView
+from graphene_django.views import GraphQLView
+from apps.shop.schema import schema
 
 urlpatterns = [
     path('admin/', admin.site.urls),
