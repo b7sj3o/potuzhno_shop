@@ -47,6 +47,7 @@
 
     <main class="container mx-auto px-6 py-16">
         <div id="productList" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6"></div>
+            </section>
     </main>
 
     <div id="cartModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm hidden flex justify-end z-50">
@@ -75,5 +76,19 @@
     </footer>
 
     <script src="cart.js"></script><script src="products.js"></script><script src="app.js"></script>
+
+    <div id="wishlist-modal" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white w-full max-w-2xl rounded-2xl p-6 shadow-2xl relative max-h-[80vh] flex flex-col">
+            <div class="flex justify-between items-center border-b pb-4 mb-4">
+                <h2 class="text-xl font-bold flex items-center gap-2">
+                    <i class="fa-solid fa-heart text-red-500"></i> Список «Обране»
+                </h2>
+                <button onclick="closeWishlistModal()" class="text-gray-400 hover:text-black text-2xl font-bold">&times;</button>
+            </div>
+            <div id="wishlist-items-container" class="overflow-y-auto flex-1 grid grid-cols-1 sm:grid-cols-2 gap-4">
+                </div>
+        </div>
+    </div>
 </body>
+
 </html>
