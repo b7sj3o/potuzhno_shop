@@ -242,3 +242,92 @@ renderProductsGrid = function(products) {
 document.addEventListener('DOMContentLoaded', () => {
     updateWishlistBadge();
 });
+
+async function openAccountModal() {
+    const modal = document.getElementById('account-modal');
+    const container = document.getElementById('account-content');
+    const token = localStorage.getItem('access_token');
+
+    modal.classList.remove('hidden');
+
+    if (!token) {
+        container.innerHTML = `
+            <div class="text-center py-8">
+                <i class="fa-solid fa-lock text-4xl text-gray-300 mb-3 block"></i>
+                <p class="text-gray-600 mb-4 font-medium">Ви не авторизовані. Будь ласка, увійдіть в систему.</p>
+                <button onclick="closeAccountModal();" class="bg-black text-white px-6 py-2.5 rounded-xl font-bold hover:bg-gray-800 transition">
+                    Зрозуміло
+                </button>
+            </div>
+        `;
+        return;
+    }
+
+    container.innerHTML = '<p class="text-center py-8 text-gray-500">Завантаження історії замовлень...</p>';
+
+    try {
+        const res = await fetch(API_URL + 'orders/', {
+            headers: { 'Authorization': 'Bearer ' + token }
+        });
+        
+        if (!res.ok) throw new Error('Помилка доступу');
+        const orders = await res.json();
+
+        let ordersHtml = '';
+        if (orders.length === 0) {
+            ordersHtml = '<p class="text-gray-500 py-4 text-center">У вас поки немає оформлених замовлень.</p>';
+        } else {
+            ordersHtml = orders.map(o => `
+                <div class="border rounded-xl p-4 bg-gray-50 mb-3">
+                    <div class="flex justify-between items-center mb-2 border-b pb-2">
+                        <span class="font-extrabold text-sm text-gray-900">Замовлення #${o.id}</span>
+                        <span class="text-xs bg-black text-white px-2.5 py-1 rounded-full uppercase font-bold tracking-wider">${o.status || 'В обробці'}</span>
+                    </div>
+                    <div class="text-xs text-gray-600 space-y-1">
+                        <p><strong>Отримувач:</strong> ${o.first_name || ''} ${o.last_name || ''}</p>
+                        <p><strong>Телефон:</strong> ${o.phone || 'Н/Д'}</p>
+                        <p><strong>Доставка:</strong> м. ${o.city || 'Н/Д'}, Відділення #${o.warehouse || '1'}</p>
+                        <p class="text-sm font-bold text-black mt-2">Сума: ${o.total_price || 0} грн</p>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        container.innerHTML = `
+            <div class="flex justify-between items-center bg-gray-100 p-4 rounded-xl mb-4">
+                <div>
+                    <p class="font-bold text-gray-900">Авторизований сеанс (JWT)</p>
+                    <p class="text-xs text-gray-500">Токен збережено в LocalStorage</p>
+                </div>
+                <button onclick="logoutUser()" class="text-xs bg-red-100 text-red-600 px-3 py-2 rounded-lg font-bold hover:bg-red-200 transition">
+                    Вийти
+                </button>
+            </div>
+            <div>
+                <h3 class="font-bold text-lg mb-3 text-gray-900 flex items-center gap-2">
+                    <i class="fa-solid fa-box text-black"></i> Історія замовлень (${orders.length})
+                </h3>
+                ${ordersHtml}
+            </div>
+        `;
+    } catch (e) {
+        container.innerHTML = `
+            <div class="text-center py-6 text-red-500">
+                <p class="font-bold mb-2">Сесія застаріла або виникла помилка авторизації.</p>
+                <button onclick="logoutUser()" class="text-xs bg-black text-white px-4 py-2 rounded-lg font-bold">Очистити токен та вийти</button>
+            </div>
+        `;
+    }
+}
+
+function closeAccountModal() {
+    document.getElementById('account-modal').classList.add('hidden');
+}
+
+function logoutUser() {
+    localStorage.removeItem('access_token');
+    localStorage.removeItem('refresh_token');
+    closeAccountModal();
+    alert('Ви успішно вийшли з акаунту');
+    location.reload();
+}
