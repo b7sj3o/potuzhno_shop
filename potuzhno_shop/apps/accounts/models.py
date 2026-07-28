@@ -10,7 +10,6 @@ class Profile(models.Model):
     phone = models.CharField(max_length=20, blank=True)
     address = models.CharField(max_length=255, blank=True)
 
-    # TODO: добавити CRUD для добавлення в улюблені + сторінку улюблених (вибраних) товарів
     favourites = models.ManyToManyField(
         "shop.Product",
         related_name="favourited_by",

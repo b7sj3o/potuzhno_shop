@@ -1,4 +1,5 @@
 from django.http import  Http404
+from django.contrib import messages
 from django.db.models import Q, F
 from django.views.generic import TemplateView, ListView, DetailView
 from django.contrib.auth.decorators import login_required
@@ -84,11 +85,11 @@ class ProductDetailView(DetailView):
     context_object_name = "product"
     model = Product
 
+    def get_queryset(self):
+        return Product.objects.with_rating()
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-
-        # TODO: добавити .with_rating до продукту
 
         context["review_form"] = ReviewForm()
 
@@ -137,8 +138,8 @@ def review_create(request, slug):
     form = ReviewForm(request.POST)
 
     if request.method == "POST":
-        # TODO: добавити django messages
         if Review.objects.filter(user=request.user, product=product).count() > 0:
+            messages.error(request, "Ви вже залишали відгук на цей товар.")
             return redirect("shop:product_detail", slug=product.slug)
 
         form.instance.product = product
@@ -146,6 +147,7 @@ def review_create(request, slug):
 
         if form.is_valid():
             form.save()
+            messages.success(request, "Дякуємо за відгук!")
             return redirect("shop:product_detail", slug=product.slug)
 
     return render(request, "shop/product_detail.html", {
