@@ -6,7 +6,9 @@ from .views import (
     ProductDetailView,
     toggle_favourite,
     FavouriteListView,
-    contact
+    contact,
+    review_create,
+    product_create
 )
 
 
@@ -15,7 +17,9 @@ app_name = "shop"
 urlpatterns = [
     path("", HomeView.as_view(), name="home"),
     path("products/", ProductListView.as_view(), name="product_list"),
+    path("products/add/", product_create, name="product_create"),
     path("products/<slug:slug>/", ProductDetailView.as_view(), name="product_detail"),
+    path("products/<slug:slug>/review/", review_create, name="review_create"),
     path("favourite/toggle/<slug:slug>", toggle_favourite, name="toggle_favourite"),
     path("favourites/", FavouriteListView.as_view(), name="favourite_list"),
 

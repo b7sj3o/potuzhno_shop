@@ -41,7 +41,6 @@ INSTALLED_APPS = [
     "apps.shop.apps.ShopConfig",
     "apps.accounts.apps.AccountsConfig",
     "apps.orders.apps.OrdersConfig",
-    "apps.reviews.apps.ReviewsConfig",
 ]
 
 MIDDLEWARE = [
@@ -66,7 +65,6 @@ TEMPLATES = [
             TEMPLATE_BASE_DIR / "shop" / "templates",
             TEMPLATE_BASE_DIR / "accounts" / "templates",
             TEMPLATE_BASE_DIR / "orders" / "templates",
-            TEMPLATE_BASE_DIR / "reviews" / "templates",
         ],
         'APP_DIRS': True,
         'OPTIONS': {
@@ -139,7 +137,6 @@ STATICFILES_DIRS = [
     STATIC_BASE_DIR / "shop" / "static",
     STATIC_BASE_DIR / "accounts" / "static",
     STATIC_BASE_DIR / "orders" / "static",
-    STATIC_BASE_DIR / "reviews" / "static",
 ]
 
 APPEND_SLASH = True

@@ -6,8 +6,8 @@ from django.shortcuts import get_object_or_404, redirect, reverse, render
 from django.contrib.auth.mixins import LoginRequiredMixin
 
 
-from .models import Product, Category
-from .forms import ProductFilterForm, ContactForm
+from .models import Product, Category, Review
+from .forms import ProductFilterForm, ContactForm, ProductForm, ReviewForm
 
 
 class HomeView(TemplateView):
@@ -85,6 +85,17 @@ class ProductDetailView(DetailView):
     model = Product
 
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        # TODO: добавити .with_rating до продукту
+
+        context["review_form"] = ReviewForm()
+
+        return context
+
+
+
 @login_required
 def toggle_favourite(request, slug):
     user_profile = request.user.profile
@@ -118,3 +129,40 @@ def contact(request):
         form = ContactForm()
 
     return render(request, "shop/contact.html", {"form": form})
+
+
+@login_required
+def review_create(request, slug):
+    product = get_object_or_404(Product, slug=slug)
+    form = ReviewForm(request.POST)
+
+    if request.method == "POST":
+        # TODO: добавити django messages
+        if Review.objects.filter(user=request.user, product=product).count() > 0:
+            return redirect("shop:product_detail", slug=product.slug)
+
+        form.instance.product = product
+        form.instance.user = request.user
+
+        if form.is_valid():
+            form.save()
+            return redirect("shop:product_detail", slug=product.slug)
+
+    return render(request, "shop/product_detail.html", {
+        "product": product,
+        "review_form": form
+    })
+
+
+def product_create(request):
+    if request.method == "POST":
+        form = ProductForm(request.POST)
+
+        if form.is_valid():
+            product = form.save()
+            return redirect("shop:product_detail", slug=product.slug)
+    else:
+        form = ProductForm()
+
+    return render(request, "shop/product_form.html", {"form": form})
+

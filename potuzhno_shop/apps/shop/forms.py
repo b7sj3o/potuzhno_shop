@@ -1,6 +1,7 @@
 from django import forms
+from django.core.exceptions import NON_FIELD_ERRORS
 
-from .models import Category, Product
+from .models import Category, Product, Review
 
 
 class ProductFilterForm(forms.Form):
@@ -104,4 +105,68 @@ class ContactForm(forms.Form):
             # add_error прив'язує помилку до конкретного поля (а не до всієї форми)
             self.add_error("order_number", "Для цієї теми вкажіть номер замовлення.")
         return cleaned
+
+
+class ProductForm(forms.ModelForm):
+    class Meta:
+        model = Product
+        fields = [
+            "category", "brand", "name", "slug", "description",
+            "price", "audience", "sizes", "stock", "sku",
+            "is_active", "is_featured",
+        ]
+        widgets = {
+            "category": forms.Select(attrs={"class": "form-select"}),
+            "brand": forms.Select(attrs={"class": "form-select"}),
+            "name": forms.TextInput(attrs={"class": "form-control"}),
+            "slug": forms.TextInput(attrs={"class": "form-control"}),
+            "description": forms.Textarea(attrs={"class": "form-control", "rows": 4}),
+            "price": forms.NumberInput(attrs={"class": "form-control"}),
+            "audience": forms.Select(attrs={"class": "form-select"}),
+            "sizes": forms.CheckboxSelectMultiple,               # M2M зручніше чекбоксами
+            "stock": forms.NumberInput(attrs={"class": "form-control"}),
+            "sku": forms.TextInput(attrs={"class": "form-control"}),
+            "is_active": forms.CheckboxInput(attrs={"class": "form-check-input"}),
+            "is_featured": forms.CheckboxInput(attrs={"class": "form-check-input"}),
+        }
+        labels = {
+            "name": "Назва", "slug": "Slug (для URL)", "price": "Ціна, грн",
+            "audience": "Аудиторія", "sizes": "Доступні розміри", "stock": "Залишок",
+            "sku": "Артикул", "is_active": "Активний (показувати в каталозі)",
+            "is_featured": "Рекомендований",
+        }
+        help_texts = {
+            "slug": "Латиницею, напр. hoodie-oversize.",
+            "sku": "Необов'язково. Порожній збережеться як NULL.",
+        }
+
+    def clean_sku(self):
+        sku = self.cleaned_data.get("sku", "")
+        if isinstance(sku, str):
+            sku = sku.strip()
+        return sku or None
+
+
+    def clean_slug(self):
+        slug = self.cleaned_data.get("slug")
+
+        if Product.objects.filter(slug=slug).exists():
+            raise forms.ValidationError("Товар з таким slug вже існує")
+        return slug
+
+
+class ReviewForm(forms.ModelForm):
+    class Meta:
+        model = Review
+        fields = ("rating", "text")
+        widgets = {
+            "rating": forms.Select(attrs={"class": "form-select"}),
+            "text": forms.Textarea(attrs={"class": "form-control", "rows": 3,
+                                          "placeholder": "Ваші враження про товар"}),
+        }
+        labels = {"rating": "Оцінка", "text": "Ваш відгук"}
+        # кастомне повідомлення для вбудованого валідатора unique_together
+        error_messages = {
+            NON_FIELD_ERRORS: {"unique_together": "Ви вже залишали відгук на цей товар."},
+        }
 

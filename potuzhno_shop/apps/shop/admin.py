@@ -1,5 +1,4 @@
-from .models import Category, Product, Size, Brand
-from apps.reviews.models import Review
+from .models import Category, Product, Size, Brand, Review
 
 from django.contrib import admin, messages
 from django.db.models import Avg, Count
@@ -92,3 +91,13 @@ class BrandAdmin(admin.ModelAdmin):
 class SizeAdmin(admin.ModelAdmin):
     list_display = ("name",)
     search_fields = ("name",)
+
+
+@admin.register(Review)
+class ReviewAdmin(admin.ModelAdmin):
+    list_display = ("product", "user", "rating", "created_at")
+    list_filter = ("rating", "created_at")
+    search_fields = ("product__name", "user__username", "text")
+    list_select_related = ("product", "user")
+    autocomplete_fields = ("product", "user")
+    readonly_fields = ("created_at",)

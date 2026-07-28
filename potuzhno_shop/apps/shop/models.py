@@ -1,6 +1,8 @@
 from django.core.validators import MinLengthValidator
 from django.db import models
+from django.conf import settings
 from django.db.models import Avg, Count
+
 
 class Category(models.Model):
     name = models.CharField(max_length=200)
@@ -30,6 +32,35 @@ class Size(models.Model):
 
     def __str__(self):
         return self.name
+
+
+class Review(models.Model):
+    RATING_CHOICES = [(i, i) for i in range(1, 6)]
+
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="reviews"
+    )
+
+    product = models.ForeignKey(
+        "shop.Product",
+        on_delete=models.CASCADE,
+        related_name="reviews"
+    )
+
+    rating = models.PositiveIntegerField(default=1, choices=RATING_CHOICES)
+    text = models.TextField(blank=True)
+
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ("user", "product")
+        ordering = ["-created_at"]
+
+    def __str__(self):
+        return f"{self.user} -> {self.product} - {self.rating}"
+
 
 class ProductQuerySet(models.QuerySet):
     def active(self):
