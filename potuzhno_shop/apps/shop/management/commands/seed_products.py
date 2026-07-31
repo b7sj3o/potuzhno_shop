@@ -1,20 +1,10 @@
-"""
-Наповнення каталогу демо-даними.
-
-Запуск (ПІСЛЯ створення моделей Рів. 9 і `migrate`):
-    python manage.py seed_products
-
-Команда ідемпотентна (get_or_create) і оновлює зв'язки (бренд, розміри) навіть для
-вже наявних товарів — тож її безпечно перезапускати після зміни brand на FK.
-"""
 from decimal import Decimal
 
 from django.contrib.auth.models import User
 from django.core.management.base import BaseCommand
 
-from apps.shop.models import Category, Brand, Size, Product
+from apps.shop.models import Category, Brand, Size, Product, Review
 from apps.accounts.models import Profile
-from apps.reviews.models import Review
 
 
 CATEGORIES = {
@@ -35,7 +25,6 @@ BRANDS = {
 SIZES_LETTER = ["S", "M", "L", "XL"]
 SIZES_SHOE = ["40", "41", "42", "43"]
 
-# (name, slug, category, brand, price, audience, stock, is_featured, sku)
 PRODUCTS = [
     ("Худі Oversize", "hoodie-oversize", "hoodies", "potuzhno", "1290.00", "unisex", 20, True, "HD-OVR-001"),
     ("Худі Zip Black", "hoodie-zip-black", "hoodies", "potuzhno", "1490.00", "man", 12, False, "HD-ZIP-002"),
@@ -54,10 +43,8 @@ PRODUCTS = [
     ("Вітровка Light", "jacket-windbreaker", "jackets", "nova", "1690.00", "woman", 11, False, "JK-WND-015"),
 ]
 
-# (username, first_name)
 USERS = [("demo1", "Олег"), ("demo2", "Марта"), ("demo3", "Ігор")]
 
-# (username, product_slug, rating, text) — навмисно різні рейтинги, щоб працював фільтр/сорт за рейтингом
 REVIEWS = [
     ("demo1", "hoodie-oversize", 5, "Топ худі — тепле, не розтягнулось після прання."),
     ("demo2", "hoodie-oversize", 4, "Гарне, але розмір трохи завеликий, беріть менший."),
@@ -73,7 +60,7 @@ REVIEWS = [
     ("demo1", "hoodie-crop", 5, "Дівчині зайшло, якість супер."),
 ]
 
-FAVORITES = {
+FAVOURITES = {
     "demo1": ["hoodie-oversize", "sneakers-runner", "jacket-bomber"],
 }
 
@@ -82,12 +69,10 @@ class Command(BaseCommand):
     help = "Наповнює каталог демо-даними: категорії, бренди, розміри, товари, користувачі, відгуки, обране."
 
     def handle(self, *args, **options):
-        # ── Категорії / бренди / розміри ──
         cats = {s: Category.objects.get_or_create(slug=s, defaults={"name": n})[0] for s, n in CATEGORIES.items()}
         brands = {s: Brand.objects.get_or_create(slug=s, defaults={"name": n})[0] for s, n in BRANDS.items()}
         sizes = {lbl: Size.objects.get_or_create(name=lbl)[0] for lbl in SIZES_LETTER + SIZES_SHOE}
 
-        # ── Товари (+ прив'язка бренду й розмірів навіть для наявних) ──
         products, created = {}, 0
         for name, slug, cat, brand, price, audience, stock, featured, sku in PRODUCTS:
             p, was_created = Product.objects.get_or_create(
@@ -105,7 +90,6 @@ class Command(BaseCommand):
             products[slug] = p
             created += int(was_created)
 
-        # ── Користувачі + профілі ──
         users = {}
         for username, first_name in USERS:
             u, was_created = User.objects.get_or_create(username=username, defaults={"first_name": first_name})
@@ -115,16 +99,14 @@ class Command(BaseCommand):
             Profile.objects.get_or_create(user=u)
             users[username] = u
 
-        # ── Відгуки ──
         for username, product_slug, rating, text in REVIEWS:
             Review.objects.get_or_create(
                 user=users[username], product=products[product_slug],
                 defaults={"rating": rating, "text": text},
             )
 
-        # ── Обране (M2M на Profile) ──
-        for username, slugs in FAVORITES.items():
-            users[username].profile.favorites.set([products[s] for s in slugs])
+        for username, slugs in FAVOURITES.items():
+            users[username].profile.favourites.set([products[s] for s in slugs])
 
         self.stdout.write(self.style.SUCCESS(
             f"Готово: категорій {len(cats)}, брендів {len(brands)}, розмірів {len(sizes)}, "

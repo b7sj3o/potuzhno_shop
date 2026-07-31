@@ -8,7 +8,6 @@
         <span class="text-muted">{{ page_obj.paginator.count }} товар(ів)</span>
     </div>
 
-    {# ───────── Панель фільтрів — тепер це Django-форма (Рів. 12), рендеримо поле-за-полем ───────── #}
     <form method="get" class="filter-bar mb-4">
         <div class="row g-2 align-items-end">
             <div class="col-12 col-md-4">
@@ -44,7 +43,6 @@
                 {{ filter_form.sort }}
             </div>
 
-            {# Загальні помилки форми (напр. min > max з методу clean()) #}
             {% if filter_form.non_field_errors %}
                 <div class="col-12">
                     <div class="text-danger small">{{ filter_form.non_field_errors }}</div>
@@ -58,7 +56,6 @@
         </div>
     </form>
 
-    {# ───────── Грід карток (products = товари поточної сторінки) ───────── #}
     <div class="row row-cols-1 row-cols-sm-2 row-cols-lg-3 g-4">
         {% for product in products %}
             <div class="col">
@@ -71,6 +68,5 @@
         {% endfor %}
     </div>
 
-    {# ───────── Пагінація (зберігає активні фільтри) ───────── #}
     {% include 'partials/pagination.html' %}
 {% endblock %}

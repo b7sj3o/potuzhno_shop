@@ -1,7 +1,23 @@
 from django import forms
 from django.core.exceptions import NON_FIELD_ERRORS
+from django.utils.text import slugify
 
 from .models import Category, Product, Review
+
+
+
+def unique_slug(name, instance=None):
+    base = slugify(name) or "product"
+
+    queryset = Product.objects.all()
+    if instance is not None and instance.pk:
+        queryset = queryset.exclude(pk=instance.pk)
+
+    slug, counter = base, 2
+    while queryset.filter(slug=slug).exists():
+        slug = f"{base}-{counter}"
+        counter += 1
+    return slug
 
 
 class ProductFilterForm(forms.Form):
@@ -102,7 +118,6 @@ class ContactForm(forms.Form):
         subject = cleaned.get("subject")
         order_number = cleaned.get("order_number")
         if subject in ("order", "return") and not order_number:
-            # add_error прив'язує помилку до конкретного поля (а не до всієї форми)
             self.add_error("order_number", "Для цієї теми вкажіть номер замовлення.")
         return cleaned
 
@@ -111,7 +126,7 @@ class ProductForm(forms.ModelForm):
     class Meta:
         model = Product
         fields = [
-            "category", "brand", "name", "slug", "description",
+            "category", "brand", "name", "description",
             "price", "audience", "sizes", "stock", "sku",
             "is_active", "is_featured",
         ]
@@ -119,24 +134,22 @@ class ProductForm(forms.ModelForm):
             "category": forms.Select(attrs={"class": "form-select"}),
             "brand": forms.Select(attrs={"class": "form-select"}),
             "name": forms.TextInput(attrs={"class": "form-control"}),
-            "slug": forms.TextInput(attrs={"class": "form-control"}),
             "description": forms.Textarea(attrs={"class": "form-control", "rows": 4}),
             "price": forms.NumberInput(attrs={"class": "form-control"}),
             "audience": forms.Select(attrs={"class": "form-select"}),
-            "sizes": forms.CheckboxSelectMultiple,               # M2M зручніше чекбоксами
+            "sizes": forms.CheckboxSelectMultiple,
             "stock": forms.NumberInput(attrs={"class": "form-control"}),
             "sku": forms.TextInput(attrs={"class": "form-control"}),
             "is_active": forms.CheckboxInput(attrs={"class": "form-check-input"}),
             "is_featured": forms.CheckboxInput(attrs={"class": "form-check-input"}),
         }
         labels = {
-            "name": "Назва", "slug": "Slug (для URL)", "price": "Ціна, грн",
+            "name": "Назва", "price": "Ціна, грн",
             "audience": "Аудиторія", "sizes": "Доступні розміри", "stock": "Залишок",
             "sku": "Артикул", "is_active": "Активний (показувати в каталозі)",
             "is_featured": "Рекомендований",
         }
         help_texts = {
-            "slug": "Латиницею, напр. hoodie-oversize.",
             "sku": "Необов'язково. Порожній збережеться як NULL.",
         }
 
@@ -145,14 +158,6 @@ class ProductForm(forms.ModelForm):
         if isinstance(sku, str):
             sku = sku.strip()
         return sku or None
-
-
-    def clean_slug(self):
-        slug = self.cleaned_data.get("slug")
-
-        if Product.objects.filter(slug=slug).exists():
-            raise forms.ValidationError("Товар з таким slug вже існує")
-        return slug
 
 
 class ReviewForm(forms.ModelForm):
@@ -165,8 +170,18 @@ class ReviewForm(forms.ModelForm):
                                           "placeholder": "Ваші враження про товар"}),
         }
         labels = {"rating": "Оцінка", "text": "Ваш відгук"}
-        # кастомне повідомлення для вбудованого валідатора unique_together
         error_messages = {
             NON_FIELD_ERRORS: {"unique_together": "Ви вже залишали відгук на цей товар."},
         }
+
+    def clean_text(self):
+        text = (self.cleaned_data.get("text") or "").strip()
+        rating = self.cleaned_data.get("rating")
+
+        if rating is not None and rating <= 2 and len(text) < 5:
+            raise forms.ValidationError(
+                "Для оцінки 1–2 поясніть, що саме не сподобалось (мінімум 5 символів)."
+            )
+
+        return text
 

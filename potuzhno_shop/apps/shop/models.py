@@ -1,4 +1,3 @@
-from django.core.validators import MinLengthValidator
 from django.db import models
 from django.conf import settings
 from django.db.models import Avg, Count
@@ -50,7 +49,7 @@ class Review(models.Model):
     )
 
     rating = models.PositiveIntegerField(default=1, choices=RATING_CHOICES)
-    text = models.TextField(blank=True)
+    text = models.TextField(blank=True, max_length=1000)
 
     created_at = models.DateTimeField(auto_now_add=True)
 

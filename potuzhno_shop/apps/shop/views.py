@@ -1,14 +1,12 @@
-from django.http import  Http404
 from django.contrib import messages
 from django.db.models import Q, F
-from django.views.generic import TemplateView, ListView, DetailView
 from django.contrib.auth.decorators import login_required
+from django.views.generic import TemplateView, ListView, DetailView
 from django.shortcuts import get_object_or_404, redirect, reverse, render
 from django.contrib.auth.mixins import LoginRequiredMixin
 
-
-from .models import Product, Category, Review
-from .forms import ProductFilterForm, ContactForm, ProductForm, ReviewForm
+from .models import Product, Review
+from .forms import ProductFilterForm, ContactForm, ProductForm, ReviewForm, unique_slug
 
 
 class HomeView(TemplateView):
@@ -125,7 +123,8 @@ def contact(request):
             print(f"[CONTACT] {data['name']} <{data['email']}> "
                   f"[{data['subject']}] #{data['order_number'] or '—'}: {data['message']}")
 
-            return redirect(f"{reverse('shop:contact')}?sent=1")
+            messages.success(request, "Форма було успішно надіслана!")
+            return redirect(f"{reverse('shop:contact')}")
     else:
         form = ContactForm()
 
@@ -139,7 +138,7 @@ def review_create(request, slug):
 
     if request.method == "POST":
         if Review.objects.filter(user=request.user, product=product).count() > 0:
-            messages.error(request, "Ви вже залишали відгук на цей товар.")
+            messages.error(request, "Ви вже написали відгук для цього продукту")
             return redirect("shop:product_detail", slug=product.slug)
 
         form.instance.product = product
@@ -147,8 +146,14 @@ def review_create(request, slug):
 
         if form.is_valid():
             form.save()
-            messages.success(request, "Дякуємо за відгук!")
+
+            messages.success(request, "Відгук був успішно створений")
             return redirect("shop:product_detail", slug=product.slug)
+
+        # TODO: добавити утиліту або декоратор для показу помилок замість цього:
+        for error in form.errors.values():
+            messages.error(request, "\n".join(error))
+
 
     return render(request, "shop/product_detail.html", {
         "product": product,
@@ -156,15 +161,43 @@ def review_create(request, slug):
     })
 
 
+@login_required
+def review_delete(request, pk):
+    review = get_object_or_404(Review, pk=pk)
+    review.delete()
+    messages.success(request, "Відгук був успішно видалений")
+
+    return redirect("shop:product_detail", slug=review.product.slug)
+
 def product_create(request):
+    form = ProductForm(request.POST or None)
+
     if request.method == "POST":
-        form = ProductForm(request.POST)
+        form.instance.slug = unique_slug(request.POST.get("name", ""))
 
         if form.is_valid():
             product = form.save()
+            messages.success(request, f'Продукт "{product.name}" був успішно створений')
             return redirect("shop:product_detail", slug=product.slug)
-    else:
-        form = ProductForm()
+        messages.error(request, "Трапилась помилка")
+
 
     return render(request, "shop/product_form.html", {"form": form})
+
+
+def product_update(request, slug):
+    product = get_object_or_404(Product, slug=slug)
+    form = ProductForm(request.POST or None, instance=product)
+
+    if request.method == "POST":
+        form.instance.slug = unique_slug(request.POST.get("name", ""), instance=product)
+
+        if form.is_valid():
+            product = form.save()
+            messages.success(request, f'Продукт "{product.name}" був успішно оновлений')
+            return redirect("shop:product_detail", slug=product.slug)
+        messages.error(request, "Трапилась помилка")
+
+
+    return render(request, "shop/product_form.html", {"form": form, "product": product})
 

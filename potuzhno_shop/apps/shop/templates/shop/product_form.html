@@ -1,16 +1,20 @@
 {% extends 'base.html' %}
 
-{% block title %}Додати товар — ПОТУЖНО Shop{% endblock %}
+{% block title %}{% if product %}Редагувати товар{% else %}Додати товар{% endif %} — ПОТУЖНО Shop{% endblock %}
 
 {% block content %}
     <nav aria-label="breadcrumb">
         <ol class="breadcrumb">
             <li class="breadcrumb-item"><a href="{% url 'shop:product_list' %}">Каталог</a></li>
-            <li class="breadcrumb-item active" aria-current="page">Додати товар</li>
+            <li class="breadcrumb-item active" aria-current="page">
+                {% if product %}Редагувати товар{% else %}Додати товар{% endif %}
+            </li>
         </ol>
     </nav>
 
-    <h1 class="h3 mb-4">Новий товар</h1>
+    <h1 class="h3 mb-4">
+        {% if product %}Редагування: {{ product.name }}{% else %}Новий товар{% endif %}
+    </h1>
 
     <form method="post" class="col-lg-8">
         {% csrf_token %}
@@ -35,7 +39,9 @@
             </div>
         {% endfor %}
 
-        <button type="submit" class="btn btn-dark">Зберегти товар</button>
+        <button type="submit" class="btn btn-dark">
+            {% if product %}Зберегти зміни{% else %}Зберегти товар{% endif %}
+        </button>
         <a href="{% url 'shop:product_list' %}" class="btn btn-outline-secondary">Скасувати</a>
     </form>
 {% endblock %}

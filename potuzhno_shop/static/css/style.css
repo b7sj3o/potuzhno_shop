@@ -1,8 +1,5 @@
-/* ПОТУЖНО Shop — власні стилі поверх Bootstrap.
-   Лежить у apps/static/css/style.css, підключається через {% static 'css/style.css' %}. */
-
 :root {
-    --potuzhno-accent: #6f42c1; /* фірмовий фіолетовий */
+    --potuzhno-accent: #6f42c1;
 }
 
 /* ── Герой-банер на головній ── */
@@ -19,7 +16,6 @@
     box-shadow: 0 .75rem 1.5rem rgba(0, 0, 0, .12) !important;
 }
 
-/* Заглушка замість фото (поки немає ImageField — зʼявиться на Рів. 7) */
 .product-card__thumb,
 .product-detail__thumb {
     display: flex;

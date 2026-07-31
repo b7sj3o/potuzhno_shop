@@ -46,7 +46,7 @@ class ProductAdmin(admin.ModelAdmin):
     list_display_links = ("name",)
     list_filter = ("category", "brand", "audience", "is_active", "is_featured")
     search_fields = ("name", "sku", "brand__name")
-    prepopulated_fields = {"slug": ("name",)}     # slug сам заповнюється з name
+    prepopulated_fields = {"slug": ("name",)}
     readonly_fields = ("created_at", "updated_at")
     actions = [make_featured, unmake_featured, activate, deactivate]
 
