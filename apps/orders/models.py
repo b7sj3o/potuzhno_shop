@@ -1,6 +1,6 @@
-from django.db import models
+﻿from django.db import models
 from django.contrib.auth.models import User
-from apps.shop.models import ProductVariant
+from apps.shop.models import Product
 
 class Order(models.Model):
     STATUS_CHOICES = [
@@ -15,7 +15,6 @@ class Order(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='new')
     
-    # Поля для Нової Пошти
     city = models.CharField(max_length=100, verbose_name='Місто', blank=True, null=True)
     post_office = models.CharField(max_length=255, verbose_name='Відділення пошти', blank=True, null=True)
     
@@ -28,7 +27,6 @@ class Order(models.Model):
 
 class OrderItem(models.Model):
     order = models.ForeignKey(Order, related_name='items', on_delete=models.CASCADE)
-    variant = models.ForeignKey(ProductVariant, on_delete=models.CASCADE)
+    product = models.ForeignKey(Product, on_delete=models.CASCADE, null=True, blank=True)
     quantity = models.PositiveIntegerField(default=1)
     price = models.DecimalField(max_digits=10, decimal_places=2)
-

@@ -562,7 +562,7 @@ function applyFilters() {
         // 1. Пошук
         const matchesSearch = !searchVal || name.includes(searchVal) || desc.includes(searchVal) || cat.includes(searchVal);
 
-        # 2. Фільтрація за категорією
+        // 2. Фільтрація за категорією
         let matchesCategory = true;
         if (currentCatKey === 'clothing') {
             matchesCategory = cat.includes('одяг') || name.includes('світшот') || name.includes('штани') || name.includes('худі') || name.includes('футболка') || desc.includes('одяг');
