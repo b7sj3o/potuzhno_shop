@@ -70,9 +70,9 @@ class OrderType(DjangoObjectType):
     class Meta:
         model = Order
         fields = (
-            "id", "user", "created_at", "status", "city",
-            "post_office", "total_price", "phone",
-            "customer_name", "items"
+            "id", "user", "created_at", , ,
+            , "total_price", "phone",
+            , "items"
         )
 
 
