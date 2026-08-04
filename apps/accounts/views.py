@@ -1,8 +1,8 @@
-from rest_framework import generics, permissions
-from .serializers import UserSerializer
-from django.contrib.auth.models import User
+from django.shortcuts import render
+from django.contrib.auth.decorators import login_required
+from apps.orders.models import Order
 
-class RegisterView(generics.CreateAPIView):
-    queryset = User.objects.all()
-    permission_classes = (permissions.AllowAny,)
-    serializer_class = UserSerializer
+@login_required
+def profile_view(request):
+    orders = Order.objects.filter(user=request.user).order_by('-created_at')
+    return render(request, 'accounts/profile.html', {'orders': orders})
