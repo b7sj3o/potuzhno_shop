@@ -1,0 +1,39 @@
+
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <title>Оформлення замовлення - Потужно Shop</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="bg-light">
+    <div class="container my-5" style="max-width: 600px;">
+        <a href="{% url 'cart:cart_detail' %}" class="btn btn-secondary mb-3">&larr; Назад до кошика</a>
+        <div class="card shadow p-4">
+            <h2 class="mb-4 text-center">📦 Оформлення замовлення</h2>
+            <form method="post">
+                {% csrf_token %}
+                <div class="mb-3">
+                    <label for="full_name" class="form-label">Повне ім'я</label>
+                    <input type="text" class="form-control" id="full_name" name="full_name" required placeholder="Тарас Шевченко">
+                </div>
+                <div class="mb-3">
+                    <label for="phone" class="form-label">Номер телефону</label>
+                    <input type="text" class="form-control" id="phone" name="phone" required placeholder="+380XXXXXXXXX">
+                </div>
+                <div class="mb-3">
+                    <label for="address" class="form-label">Адреса доставки / Відділення Нової Пошти</label>
+                    <textarea class="form-control" id="address" name="address" rows="3" required placeholder="м. Київ, відділення №1"></textarea>
+                </div>
+                <hr>
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <span class="fw-bold">До сплати:</span>
+                    <span class="fs-4 text-success fw-bold">{{ cart.get_total_price }} грн</span>
+                </div>
+                <button type="submit" class="btn btn-success btn-lg w-100">Підтвердити замовлення</button>
+            </form>
+        </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
