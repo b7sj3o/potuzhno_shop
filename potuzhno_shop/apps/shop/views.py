@@ -1,12 +1,16 @@
 from django.contrib import messages
 from django.db.models import Q, F
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, user_passes_test
 from django.views.generic import TemplateView, ListView, DetailView
 from django.shortcuts import get_object_or_404, redirect, reverse, render
 from django.contrib.auth.mixins import LoginRequiredMixin
 
 from .models import Product, Review
 from .forms import ProductFilterForm, ContactForm, ProductForm, ReviewForm, unique_slug
+from .utils import form_errors_to_messages
+
+
+staff_required = user_passes_test(lambda u: u.is_staff)
 
 
 class HomeView(TemplateView):
@@ -94,7 +98,6 @@ class ProductDetailView(DetailView):
         return context
 
 
-
 @login_required
 def toggle_favourite(request, slug):
     user_profile = request.user.profile
@@ -104,13 +107,6 @@ def toggle_favourite(request, slug):
     else:
         user_profile.favourites.add(product)
     return redirect("shop:product_detail", slug=slug)
-
-
-class FavouriteListView(LoginRequiredMixin, ProductListView):
-    def get_queryset(self):
-        return super().get_queryset().filter(
-            favourited_by=self.request.user.profile
-        )
 
 
 def contact(request):
@@ -150,10 +146,7 @@ def review_create(request, slug):
             messages.success(request, "Відгук був успішно створений")
             return redirect("shop:product_detail", slug=product.slug)
 
-        # TODO: добавити утиліту або декоратор для показу помилок замість цього:
-        for error in form.errors.values():
-            messages.error(request, "\n".join(error))
-
+        form_errors_to_messages(request, form)
 
     return render(request, "shop/product_detail.html", {
         "product": product,
@@ -164,11 +157,15 @@ def review_create(request, slug):
 @login_required
 def review_delete(request, pk):
     review = get_object_or_404(Review, pk=pk)
-    review.delete()
-    messages.success(request, "Відгук був успішно видалений")
+
+    if request.user == review.user:
+        review.delete()
+        messages.success(request, "Відгук був успішно видалений")
 
     return redirect("shop:product_detail", slug=review.product.slug)
 
+
+@staff_required
 def product_create(request):
     form = ProductForm(request.POST or None)
 
@@ -178,13 +175,18 @@ def product_create(request):
         if form.is_valid():
             product = form.save()
             messages.success(request, f'Продукт "{product.name}" був успішно створений')
-            return redirect("shop:product_detail", slug=product.slug)
-        messages.error(request, "Трапилась помилка")
 
+            if product.stock == 0:
+                messages.warning(request, "Товар додано, але його немає в наявності")
+
+            return redirect("shop:product_detail", slug=product.slug)
+
+        form_errors_to_messages(request, form)
 
     return render(request, "shop/product_form.html", {"form": form})
 
 
+@staff_required
 def product_update(request, slug):
     product = get_object_or_404(Product, slug=slug)
     form = ProductForm(request.POST or None, instance=product)
@@ -196,8 +198,21 @@ def product_update(request, slug):
             product = form.save()
             messages.success(request, f'Продукт "{product.name}" був успішно оновлений')
             return redirect("shop:product_detail", slug=product.slug)
-        messages.error(request, "Трапилась помилка")
 
+        form_errors_to_messages(request, form)
 
     return render(request, "shop/product_form.html", {"form": form, "product": product})
+
+
+@staff_required
+def product_delete(request, slug):
+    product = get_object_or_404(Product, slug=slug)
+
+    if request.method == "POST":
+        product.delete()
+        messages.success(request, f'Продукт "{product.name}" був успішно видалений')
+
+        return redirect("shop:product_list")
+
+    return render(request, "shop/product_confirm_delete.html", {"product": product})
 

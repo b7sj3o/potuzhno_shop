@@ -5,11 +5,11 @@ from .views import (
     ProductListView,
     ProductDetailView,
     toggle_favourite,
-    FavouriteListView,
     contact,
     review_create,
     product_create,
     product_update,
+    product_delete,
     review_delete
 )
 
@@ -22,9 +22,9 @@ urlpatterns = [
     path("products/add/", product_create, name="product_create"),
     path("products/<slug:slug>/", ProductDetailView.as_view(), name="product_detail"),
     path("products/<slug:slug>/edit/", product_update, name="product_update"),
+    path("products/<slug:slug>/delete/", product_delete, name="product_delete"),
     path("products/<slug:slug>/review/", review_create, name="review_create"),
     path("favourite/toggle/<slug:slug>", toggle_favourite, name="toggle_favourite"),
-    path("favourites/", FavouriteListView.as_view(), name="favourite_list"),
 
     path("contact/", contact, name="contact"),
 

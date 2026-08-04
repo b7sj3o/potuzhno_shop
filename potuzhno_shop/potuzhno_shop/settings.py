@@ -147,3 +147,7 @@ APPEND_SLASH = True
 MESSAGE_TAGS = {
     constants.ERROR: "danger"
 }
+
+LOGIN_URL = "accounts:login"
+LOGIN_REDIRECT_URL = "shop:home"
+LOGOUT_REDIRECT_URL = "shop:home"
