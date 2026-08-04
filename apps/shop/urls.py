@@ -1,12 +1,24 @@
-﻿from django.urls import path
+﻿from django.urls import path, include
 from rest_framework.routers import DefaultRouter
-from .views import ProductViewSet, product_update, product_list, product_detail
+from .views import (
+    ProductViewSet,
+    ProductListView,
+    ProductDetailView,
+    ProductCreateView,
+    ProductUpdateView,
+    ProductDeleteView
+)
 
 router = DefaultRouter()
-router.register(r'products', ProductViewSet, basename='product')
+router.register(r'products', ProductViewSet, basename='product-api')
+
+app_name = 'shop'
 
 urlpatterns = [
-    path('', product_list, name='product_list'),
-    path('products/<slug:slug>/', product_detail, name='product_detail'),
-    path('products/<slug:slug>/edit/', product_update, name='product_update'),
-] + router.urls
+    path('api/', include(router.urls)),
+    path('', ProductListView.as_view(), name='product_list'),
+    path('products/create/', ProductCreateView.as_view(), name='product_create'),
+    path('products/<slug:slug>/', ProductDetailView.as_view(), name='product_detail'),
+    path('products/<slug:slug>/update/', ProductUpdateView.as_view(), name='product_update'),
+    path('products/<slug:slug>/delete/', ProductDeleteView.as_view(), name='product_delete'),
+]
