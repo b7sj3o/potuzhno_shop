@@ -10,6 +10,8 @@ from .models import Product
 from .serializers import ProductSerializer
 from .services.product_service import soft_delete_product, restore_product
 from .forms import ProductForm
+from apps.reviews.models import Review
+from apps.reviews.forms import ReviewForm
 
 class ProductViewSet(viewsets.ModelViewSet):
     queryset = Product.objects.all()
@@ -55,6 +57,29 @@ class ProductDetailView(DetailView):
 
     def get_queryset(self):
         return Product.objects.filter(is_active=True)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['reviews'] = self.object.reviews.all()
+        context['review_form'] = ReviewForm()
+        return context
+
+    def post(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        form = ReviewForm(request.POST)
+        if form.is_valid():
+            review = form.save(commit=False)
+            review.product = self.object
+            if request.user.is_authenticated:
+                review.user = request.user
+            review.save()
+            messages.success(request, "Ваш відгук успішно додано!")
+            return redirect('shop:product_detail', slug=self.object.slug)
+        else:
+            form_errors_to_messages(request, form)
+            context = self.get_context_data(**kwargs)
+            context['review_form'] = form
+            return self.render_to_response(context)
 
 
 class ProductCreateView(CreateView):
