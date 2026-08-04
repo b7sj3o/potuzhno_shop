@@ -1,17 +1,16 @@
-﻿// --- ПОТУЖНО Shop Main App JS ---
-document.addEventListener("DOMContentLoaded", () => {
+﻿document.addEventListener("DOMContentLoaded", () => {
     console.log("⚡ ПОТУЖНО Shop Frontend Initialized");
-    loadProductsAndInitFilters();
+    loadProducts();
 });
 
-async function loadProductsAndInitFilters() {
+async function loadProducts() {
     try {
         const response = await fetch('/api/shop/products/');
-        if (!response.ok) throw new Error("Помилка завантаження API");
+        if (!response.ok) throw new Error("Network response was not ok");
         const products = await response.json();
         renderProducts(products);
     } catch (error) {
-        console.warn("ℹ️ API каталогу недоступне або використовується шаблонний рендеринг:", error);
+        console.log("Використовується шаблонний рендеринг або API недоступне:", error);
     }
 }
 
@@ -45,5 +44,5 @@ function toggleCart() {
 }
 
 function applyFilters() {
-    console.log("Фільтрація застосована");
+    // Логіка фільтрації
 }
