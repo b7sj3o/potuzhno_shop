@@ -5,7 +5,7 @@ python-dotenv>=1.0          # читання змінних із .env
 Pillow>=11.0                # робота з ImageField (постери, аватари)
 
 # --- Рівень 16+: REST API (Django REST Framework) ---
-# djangorestframework>=3.17
+djangorestframework>=3.18.0      # підтримує Django 6.0/6.1, Python 3.10+
 
 # --- Рівень 18: JWT-аутентифікація ---
 # djangorestframework-simplejwt>=5.3

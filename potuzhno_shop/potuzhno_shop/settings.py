@@ -44,6 +44,9 @@ INSTALLED_APPS = [
     "apps.shop.apps.ShopConfig",
     "apps.accounts.apps.AccountsConfig",
     "apps.orders.apps.OrdersConfig",
+    
+    "rest_framework",
+    "apps.api.apps.ApiConfig",
 ]
 
 MIDDLEWARE = [
@@ -151,3 +154,16 @@ MESSAGE_TAGS = {
 LOGIN_URL = "accounts:login"
 LOGIN_REDIRECT_URL = "shop:home"
 LOGOUT_REDIRECT_URL = "shop:home"
+
+
+REST_FRAMEWORK = {
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.IsAuthenticatedOrReadOnly',
+    ],
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework.authentication.SessionAuthentication',
+    ],
+    'DEFAULT_PAGINATION_CLASS':
+        'rest_framework.pagination.PageNumberPagination',
+    'PAGE_SIZE': 20,
+}
