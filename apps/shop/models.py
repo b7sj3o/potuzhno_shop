@@ -1,13 +1,12 @@
-﻿from django.db import models
+from django.db import models
 from django.conf import settings
 from django.db.models import Avg, Count
-from django.utils import timezone
 
 
 class Category(models.Model):
     name = models.CharField(max_length=200)
     slug = models.SlugField(max_length=200)
-    created_at = models.DateTimeField(auto_now_add=True, null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
         ordering = ["-created_at"]
@@ -40,16 +39,13 @@ class Review(models.Model):
         on_delete=models.CASCADE,
         related_name="reviews"
     )
-
     product = models.ForeignKey(
         "shop.Product",
         on_delete=models.CASCADE,
         related_name="reviews"
     )
-
     rating = models.PositiveIntegerField(default=1, choices=RATING_CHOICES)
-    text = models.TextField(max_length=500, blank=True)
-
+    text = models.TextField(blank=True, max_length=1000)
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
@@ -62,18 +58,13 @@ class Review(models.Model):
 
 class ProductQuerySet(models.QuerySet):
     def active(self):
-        return self.filter(is_active=True, deleted_at__isnull=True)
+        return self.filter(is_active=True)
 
     def with_rating(self):
         return self.annotate(
             avg_rating=Avg("reviews__rating"),
             reviews_count=Count("reviews", distinct=True),
         )
-
-
-class ProductManager(models.Manager.from_queryset(ProductQuerySet)):
-    def get_queryset(self):
-        return super().get_queryset().filter(deleted_at__isnull=True)
 
 
 class Product(models.Model):
@@ -90,6 +81,13 @@ class Product(models.Model):
         related_name="products",
         related_query_name="product"
     )
+    brand = models.ForeignKey(
+        Brand,
+        on_delete=models.PROTECT,
+        null=True,
+        blank=True,
+        related_name="products"
+    )
     name = models.CharField(max_length=200)
     slug = models.SlugField(max_length=200)
     description = models.TextField(null=True, blank=True)
@@ -103,7 +101,6 @@ class Product(models.Model):
         db_index=True,
         null=True, blank=True,
         verbose_name="Артикул",
-        help_text="Унікальний код товару, напр. HD-OVR-001",
     )
 
     audience = models.CharField(
@@ -115,9 +112,7 @@ class Product(models.Model):
 
     stock = models.PositiveIntegerField(default=0, verbose_name="Залишок")
     sizes = models.ManyToManyField(Size, blank=True)
-    brand = models.ForeignKey(Brand, on_delete=models.PROTECT, related_name="products", null=True, blank=True)
 
-    deleted_at = models.DateTimeField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -127,9 +122,4 @@ class Product(models.Model):
     def __str__(self):
         return self.name
 
-    def soft_delete(self):
-        self.deleted_at = timezone.now()
-        self.is_active = False
-        self.save()
-
-    objects = ProductManager()
+    objects = ProductQuerySet.as_manager()
