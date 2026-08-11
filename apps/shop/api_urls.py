@@ -22,6 +22,7 @@ class ProductAPISet(viewsets.ModelViewSet):
     lookup_field = "slug"
 
 router = DefaultRouter()
+# Явно вказуємо basename='product', щоб DRF сформував ім'я 'product-list' у namespace 'shop'
 router.register(r'products', ProductAPISet, basename='product')
 router.register(r'sizes', SizeViewSet, basename='size')
 
