@@ -5,6 +5,8 @@ from apps.shop.serializers.product import ProductSerializer
 from apps.shop.models import Product, Size
 from rest_framework import viewsets
 
+app_name = 'shop'
+
 class SizeSerializer(viewsets.ModelSerializer):
     class Meta:
         model = Size
@@ -20,7 +22,6 @@ class ProductAPISet(viewsets.ModelViewSet):
     lookup_field = "slug"
 
 router = DefaultRouter()
-# Реєструємо з basename='product', щоб DRF створив 'product-list'
 router.register(r'products', ProductAPISet, basename='product')
 router.register(r'sizes', SizeViewSet, basename='size')
 
