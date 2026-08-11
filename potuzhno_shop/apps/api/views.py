@@ -4,16 +4,36 @@ from rest_framework.response import Response
 
 from apps.shop.models import Product, Category, Brand, Review
 
-from .serializers import ProductSerializer, CategorySerializer, BrandSerializer, ReviewSerializer
+from .serializers import (
+    ProductReadSerializer,
+    ProductWriteSerializer,
+    CategorySerializer,
+    BrandSerializer,
+    ReviewReadSerializer,
+    ReviewWriteSerializer
+)
 
 
 class ProductViewSet(viewsets.ModelViewSet):
-    serializer_class = ProductSerializer
+    serializer_class = ProductReadSerializer
     queryset = (
         Product.objects.with_rating()
-        .select_related("category")
+        .select_related("category") # уникаємо N+1
         .prefetch_related("sizes")
     )
+
+    def get_serializer_class(self):
+        if self.action in ("list", "retrieve"):
+            return ProductReadSerializer
+        return ProductWriteSerializer
+
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        product = serializer.save()
+        response = ProductReadSerializer(product, context=self.get_serializer_context())
+        return Response(response.data, status=status.HTTP_201_CREATED)
 
 
 class CategoryViewSet(viewsets.ModelViewSet):
@@ -32,8 +52,12 @@ class ReviewViewSet(
     mixins.CreateModelMixin,
     viewsets.GenericViewSet,
 ):
-    serializer_class = ReviewSerializer
     queryset = Review.objects.select_related("user", "product")
+
+    def get_serializer_class(self):
+        if self.action in ("list", "retrieve"):
+            return ReviewReadSerializer
+        return ReviewWriteSerializer
 
 
 # class ProductListCreateApiView(APIView):
@@ -50,3 +74,4 @@ class ReviewViewSet(
 #             return Response(serializer.data, status=status.HTTP_201_CREATED)
 #
 #         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
