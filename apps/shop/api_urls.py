@@ -1,25 +1,27 @@
+app_name = 'api'
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
-from apps.shop.views import ProductViewSet, SizeViewSet
-from apps.shop.serializers.product import ProductSerializer
-from apps.shop.models import Product, Size
 from rest_framework import viewsets
+from apps.shop.models import Product, Size
+from rest_framework import serializers
 
-app_name = 'shop'
+class ProductSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Product
+        fields = '__all__'
 
-class SizeSerializer(viewsets.ModelSerializer):
+class SizeSerializer(serializers.ModelSerializer):
     class Meta:
         model = Size
         fields = '__all__'
 
-class SizeViewSet(viewsets.ModelViewSet):
-    queryset = Size.objects.all()
-    serializer_class = SizeSerializer
-
 class ProductAPISet(viewsets.ModelViewSet):
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
-    lookup_field = "slug"
+
+class SizeViewSet(viewsets.ModelViewSet):
+    queryset = Size.objects.all()
+    serializer_class = SizeSerializer
 
 router = DefaultRouter()
 router.register(r'products', ProductAPISet, basename='product')

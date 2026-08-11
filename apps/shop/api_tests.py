@@ -13,8 +13,8 @@ class ProductAPITestCase(APITestCase):
             price=2500.00,
             category=self.category
         )
-        self.list_url = reverse('shop:product-list')
-        self.detail_url = reverse('shop:product-detail', kwargs={'pk': self.product.pk})
+        self.list_url = reverse('api:product-list')
+        self.detail_url = reverse('api:product-detail', kwargs={'pk': self.product.pk})
 
     def test_get_product_list(self):
         response = self.client.get(self.list_url)
