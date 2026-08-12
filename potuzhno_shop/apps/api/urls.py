@@ -1,5 +1,7 @@
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
+# from rest_framework.authtoken.views import obtain_auth_token
+from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 
 from . import views
 
@@ -11,7 +13,8 @@ router.register("categories", views.CategoryViewSet, basename="category")
 router.register("brands", views.BrandViewSet, basename="brand")
 router.register("reviews", views.ReviewViewSet, basename="review")
 urlpatterns = [
-    path("", include(router.urls))
-    # path("products/", views.ProductViewSet.as_view({'get': 'list', "post": "create"}), name="product-list"),
-    # path("products/<int:pk>", views.ProductViewSet.as_view({'get': 'retrieve', "put": "update"}), name="product-detail")
+    path("", include(router.urls)),
+    # path("token-auth/", obtain_auth_token),
+    path('token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
+    path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
 ]

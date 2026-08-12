@@ -44,9 +44,11 @@ INSTALLED_APPS = [
     "apps.shop.apps.ShopConfig",
     "apps.accounts.apps.AccountsConfig",
     "apps.orders.apps.OrdersConfig",
-    
-    "rest_framework",
     "apps.api.apps.ApiConfig",
+
+    "rest_framework",
+    'rest_framework.authtoken',
+    "rest_framework_simplejwt"
 ]
 
 MIDDLEWARE = [
@@ -157,13 +159,23 @@ LOGOUT_REDIRECT_URL = "shop:home"
 
 
 REST_FRAMEWORK = {
-    'DEFAULT_PERMISSION_CLASSES': [
-        'rest_framework.permissions.IsAuthenticatedOrReadOnly',
-    ],
-    'DEFAULT_AUTHENTICATION_CLASSES': [
+    'DEFAULT_AUTHENTICATION_CLASSES': [ # OR
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
         'rest_framework.authentication.SessionAuthentication',
+    ],
+    'DEFAULT_PERMISSION_CLASSES': [ # AND
+        'rest_framework.permissions.IsAuthenticatedOrReadOnly',
     ],
     'DEFAULT_PAGINATION_CLASS':
         'rest_framework.pagination.PageNumberPagination',
     'PAGE_SIZE': 20,
 }
+
+
+# ACCESS_TOKEN_LIFETIME    = timedelta(minutes=5)
+# REFRESH_TOKEN_LIFETIME   = timedelta(days=1)
+# ALGORITHM                = 'HS256'
+# ROTATE_REFRESH_TOKENS    = False
+# BLACKLIST_AFTER_ROTATION = False
+# AUTH_HEADER_TYPES        = ('Bearer',)
+# USER_ID_CLAIM            = 'user_id'

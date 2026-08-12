@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from apps.shop.models import Product, Category, Brand, Review, Size
+from apps.shop.models import Product, Category, Brand, Review
 from apps.shop.forms import unique_slug
 
 
@@ -118,7 +118,7 @@ class ReviewReadSerializer(serializers.ModelSerializer):
 
 class ReviewWriteSerializer(serializers.ModelSerializer):
     user = serializers.HiddenField(default=serializers.CurrentUserDefault())
-    product = serializers.ChoiceField(choices=Product.objects.all())
+    product = serializers.PrimaryKeyRelatedField(queryset=Product.objects.all())
 
     class Meta:
         model = Review

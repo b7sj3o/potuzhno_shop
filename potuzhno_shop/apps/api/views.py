@@ -12,10 +12,12 @@ from .serializers import (
     ReviewReadSerializer,
     ReviewWriteSerializer
 )
+from .permissions import IsOwnerOrStaffOrReadOnly, IsStaffOrReadOnly
 
 
 class ProductViewSet(viewsets.ModelViewSet):
     serializer_class = ProductReadSerializer
+    permission_classes = (IsStaffOrReadOnly,)
     queryset = (
         Product.objects.with_rating()
         .select_related("category") # уникаємо N+1
@@ -38,21 +40,19 @@ class ProductViewSet(viewsets.ModelViewSet):
 
 class CategoryViewSet(viewsets.ModelViewSet):
     serializer_class = CategorySerializer
+    permission_classes = (IsStaffOrReadOnly,)
     queryset = Category.objects.all()
 
 
 class BrandViewSet(viewsets.ModelViewSet):
     serializer_class = BrandSerializer
+    permission_classes = (IsStaffOrReadOnly,)
     queryset = Brand.objects.all()
 
 
-class ReviewViewSet(
-    mixins.ListModelMixin,
-    mixins.RetrieveModelMixin,
-    mixins.CreateModelMixin,
-    viewsets.GenericViewSet,
-):
+class ReviewViewSet(viewsets.ModelViewSet):
     queryset = Review.objects.select_related("user", "product")
+    permission_classes = (IsOwnerOrStaffOrReadOnly, )
 
     def get_serializer_class(self):
         if self.action in ("list", "retrieve"):
