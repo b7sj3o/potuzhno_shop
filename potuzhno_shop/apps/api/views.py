@@ -1,6 +1,8 @@
-from rest_framework import status, viewsets, permissions, mixins
+from rest_framework import status, viewsets
 from rest_framework.views import APIView
 from rest_framework.response import Response
+from django_filters.rest_framework import DjangoFilterBackend
+
 
 from apps.shop.models import Product, Category, Brand, Review
 
@@ -13,7 +15,8 @@ from .serializers import (
     ReviewWriteSerializer
 )
 from .permissions import IsOwnerOrStaffOrReadOnly, IsStaffOrReadOnly
-
+from .pagination import StandardPagination
+from .filters import ProductFilter
 
 class ProductViewSet(viewsets.ModelViewSet):
     serializer_class = ProductReadSerializer
@@ -23,6 +26,21 @@ class ProductViewSet(viewsets.ModelViewSet):
         .select_related("category") # уникаємо N+1
         .prefetch_related("sizes")
     )
+    pagination_class = StandardPagination
+    filterset_class = ProductFilter
+    # filterset_fields = ["is_active", "is_featured", "category__name"]
+    # filterset_fields = {
+    #     'name': ['icontains'],
+    #     'price': ['gte', 'lte'],
+    # }
+    search_fields = [
+        "name", # icontains
+        "description",
+        "=category__name", # iexact
+        "^brand__name" # Adidas -> Adi
+    ]
+    ordering = ["-created_at", "-price"]
+    ordering_fields = ["created_at", "price", "name", "is_active"]
 
     def get_serializer_class(self):
         if self.action in ("list", "retrieve"):

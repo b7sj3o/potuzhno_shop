@@ -63,13 +63,13 @@ class Review(models.Model):
 
 class ProductQuerySet(models.QuerySet):
     def active(self):
-        return self.filter(is_active=True)
+        return self.filter(is_active=True).order_by("-created_at")
 
     def with_rating(self):
         return self.annotate(
             avg_rating=Avg("reviews__rating"),
             reviews_count=Count("reviews", distinct=True),
-        )
+        ).order_by("-created_at")
 
 
 class Product(models.Model):
