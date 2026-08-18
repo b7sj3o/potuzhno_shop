@@ -4,7 +4,7 @@ from rest_framework.permissions import BasePermission, SAFE_METHODS
 class IsStaffOrReadOnly(BasePermission):
     message = "Змінювати каталог / Фільтрувати відгуки може лише персонал магазину"
 
-    def has_permissioin(self, request, view):
+    def has_permission(self, request, view):
         if request.method in SAFE_METHODS:
             return True
 
