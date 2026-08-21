@@ -9,7 +9,7 @@ class ProductFilter(filters.FilterSet):
     max_price = filters.NumberFilter(field_name="price", lookup_expr="lte")
     category = filters.CharFilter(field_name="category__name", lookup_expr="iexact")
     brand = filters.CharFilter(field_name="brand__name", lookup_expr="iexact")
-    min_rating = filters.NumberFilter(field_name="rating", lookup_expr="gte")
+    min_rating = filters.NumberFilter(field_name="avg_rating", lookup_expr="gte")
     in_stock = filters.BooleanFilter(method="filter_in_stock", label="Чи є в наявності")
 
 

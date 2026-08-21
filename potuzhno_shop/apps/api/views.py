@@ -1,3 +1,5 @@
+from django.db.models import Avg, Count, Exists, OuterRef, Value
+
 from rest_framework import status, viewsets
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.views import APIView
@@ -5,7 +7,7 @@ from rest_framework.response import Response
 from rest_framework.decorators import action
 from django_filters.rest_framework import DjangoFilterBackend
 
-
+from apps.accounts.models import Profile
 from apps.shop.models import Product, Category, Brand, Review
 
 from .serializers import (
@@ -43,6 +45,20 @@ class ProductViewSet(viewsets.ModelViewSet):
     ]
     ordering = ["-created_at", "-price"]
     ordering_fields = ["created_at", "price", "name", "is_active"]
+
+
+    def get_queryset(self):
+        qs = super().get_queryset()
+        user = self.request.user
+
+        if user.is_authenticated:
+            return qs.annotate(is_favourite=Exists(
+                Profile.favourites.through.objects.filter(
+                    product_id=OuterRef("pk"), profile__user=user
+                )
+            ))
+
+        return qs.annotate(is_favourite=Value(False))
 
     def get_serializer_class(self):
         if self.action in ("list", "retrieve"):
@@ -113,15 +129,18 @@ class CategoryViewSet(viewsets.ModelViewSet):
     serializer_class = CategorySerializer
     permission_classes = (IsStaffOrReadOnly,)
     queryset = Category.objects.all()
+    pagination_class = StandardPagination
 
 class BrandViewSet(viewsets.ModelViewSet):
     serializer_class = BrandSerializer
     permission_classes = (IsStaffOrReadOnly,)
     queryset = Brand.objects.all()
+    pagination_class = StandardPagination
 
 class ReviewViewSet(viewsets.ModelViewSet):
     queryset = Review.objects.select_related("user", "product")
     permission_classes = (IsOwnerOrStaffOrReadOnly, )
+    pagination_class = StandardPagination
 
     def get_serializer_class(self):
         if self.action in ("list", "retrieve"):

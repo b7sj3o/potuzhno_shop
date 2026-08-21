@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/6.0/ref/settings/
 """
 
 from pathlib import Path
+from datetime import timedelta
 import environ
 
 from django.contrib.messages import constants
@@ -49,10 +50,13 @@ INSTALLED_APPS = [
     "rest_framework",
     'rest_framework.authtoken',
     "rest_framework_simplejwt",
-    "django_filters"
+    "django_filters",
+
+    "corsheaders"
 ]
 
 MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -60,6 +64,11 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+]
+
+CORS_ALLOWED_ORIGINS = [
+    "http://127.0.0.1:5173",
+    "http://localhost:5173"
 ]
 
 ROOT_URLCONF = 'potuzhno_shop.urls'
@@ -177,10 +186,17 @@ REST_FRAMEWORK = {
 }
 
 
-# ACCESS_TOKEN_LIFETIME    = timedelta(minutes=5)
+# ACCESS_TOKEN_LIFETIME    = timedelta(hours=2)
 # REFRESH_TOKEN_LIFETIME   = timedelta(days=1)
 # ALGORITHM                = 'HS256'
 # ROTATE_REFRESH_TOKENS    = False
 # BLACKLIST_AFTER_ROTATION = False
 # AUTH_HEADER_TYPES        = ('Bearer',)
 # USER_ID_CLAIM            = 'user_id'
+
+SIMPLE_JWT = {
+    "ACCESS_TOKEN_LIFETIME": timedelta(hours=2),
+    "REFRESH_TOKEN_LIFETIME": timedelta(days=1),
+    "ROTATE_REFRESH_TOKENS": False,
+    "AUTH_HEADER_TYPES": ("Bearer",), # JWT
+}
