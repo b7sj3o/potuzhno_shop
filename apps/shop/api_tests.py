@@ -14,7 +14,7 @@ class ProductAPITestCase(APITestCase):
             category=self.category
         )
         self.list_url = reverse('api:product-list')
-        self.detail_url = reverse('api:product-detail', kwargs={'pk': self.product.pk})
+        self.detail_url = reverse('api:product-detail', kwargs={'slug': self.product.slug})
 
     def test_get_product_list(self):
         response = self.client.get(self.list_url)

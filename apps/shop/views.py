@@ -2,7 +2,7 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.views.generic import ListView, DetailView
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib import messages
-from .models import Product, Category, Review
+from .models import Product, Category
 from .forms import ProductForm, ReviewForm, ProductFilterForm, ContactForm
 
 class HomeView(ListView):
@@ -123,3 +123,24 @@ def review_update(request, pk):
     else:
         form = ReviewForm(initial={"rating": review.rating, "text": review.text})
     return render(request, "shop/review_form.html", {"form": form, "review": review, "product": product})
+
+# --- REST API ViewSets ---
+from rest_framework import viewsets
+from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework import filters
+from apps.shop.serializers import ProductSerializer, SizeSerializer
+
+class ProductViewSet(viewsets.ModelViewSet):
+    queryset = Product.objects.all()
+    serializer_class = ProductSerializer
+    lookup_field = "slug"
+
+    filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
+    filterset_fields = ['category', 'brand', 'is_active', 'is_featured']
+    search_fields = ['name', 'description']
+    ordering_fields = ['price', 'created_at']
+
+from apps.shop.models import Size
+class SizeViewSet(viewsets.ModelViewSet):
+    queryset = Size.objects.all()
+    serializer_class = SizeSerializer

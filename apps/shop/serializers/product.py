@@ -18,3 +18,9 @@ class ProductSerializer(serializers.ModelSerializer):
         if is_featured and stock <= 0:
             raise serializers.ValidationError({"stock": "Пропонований товар (is_featured=True) повинен мати залишок на складі більший за 0!"})
         return data
+
+from apps.shop.models import Size
+class SizeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Size
+        fields = '__all__'
