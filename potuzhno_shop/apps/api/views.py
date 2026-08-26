@@ -1,7 +1,7 @@
 from django.db.models import Avg, Count, Exists, OuterRef, Value
 
 from rest_framework import status, viewsets
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.decorators import action
@@ -9,6 +9,7 @@ from django_filters.rest_framework import DjangoFilterBackend
 
 from apps.accounts.models import Profile
 from apps.shop.models import Product, Category, Brand, Review
+from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 
 from .serializers import (
     ProductReadSerializer,
@@ -18,13 +19,13 @@ from .serializers import (
     ReviewReadSerializer,
     ReviewWriteSerializer
 )
-from .permissions import IsOwnerOrStaffOrReadOnly, IsStaffOrReadOnly
+from .permissions import IsReviewsModeratorOrReadOnly, IsCatalogManagerOrReadOnly
 from .pagination import StandardPagination
 from .filters import ProductFilter
 
 class ProductViewSet(viewsets.ModelViewSet):
     serializer_class = ProductReadSerializer
-    permission_classes = (IsStaffOrReadOnly,)
+    permission_classes = (IsCatalogManagerOrReadOnly,)
     queryset = (
         Product.objects.with_rating()
         .select_related("category") # уникаємо N+1
@@ -127,19 +128,19 @@ class ProductViewSet(viewsets.ModelViewSet):
 
 class CategoryViewSet(viewsets.ModelViewSet):
     serializer_class = CategorySerializer
-    permission_classes = (IsStaffOrReadOnly,)
+    permission_classes = (IsAuthenticatedOrReadOnly,)
     queryset = Category.objects.all()
     pagination_class = StandardPagination
 
 class BrandViewSet(viewsets.ModelViewSet):
     serializer_class = BrandSerializer
-    permission_classes = (IsStaffOrReadOnly,)
+    permission_classes = (IsAuthenticatedOrReadOnly,)
     queryset = Brand.objects.all()
     pagination_class = StandardPagination
 
 class ReviewViewSet(viewsets.ModelViewSet):
     queryset = Review.objects.select_related("user", "product")
-    permission_classes = (IsOwnerOrStaffOrReadOnly, )
+    permission_classes = (IsReviewsModeratorOrReadOnly, )
     pagination_class = StandardPagination
 
     def get_serializer_class(self):
@@ -151,7 +152,7 @@ class ReviewViewSet(viewsets.ModelViewSet):
     @action(
         detail=False,
         methods=["get"],
-        permission_classes=[IsAuthenticated]\
+        permission_classes=[IsAuthenticated]
     )
     def mine(self, request):
         reviews = (
@@ -169,3 +170,9 @@ class ReviewViewSet(viewsets.ModelViewSet):
         return Response(serializer.data)
 
 
+class ThrottledTokenObtainPairView(TokenObtainPairView):
+    throttle_scope = "login"
+
+
+class ThrottledTokenRefreshView(TokenRefreshView):
+    throttle_scope = "login"

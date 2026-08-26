@@ -157,7 +157,7 @@ STATICFILES_DIRS = [
     STATIC_BASE_DIR / "orders" / "static",
 ]
 
-APPEND_SLASH = True
+APPEND_SLASH = False
 
 MESSAGE_TAGS = {
     constants.ERROR: "danger"
@@ -182,7 +182,17 @@ REST_FRAMEWORK = {
         'django_filters.rest_framework.DjangoFilterBackend',
         'rest_framework.filters.SearchFilter',
         'rest_framework.filters.OrderingFilter',
-    ]
+    ],
+    'DEFAULT_THROTTLE_CLASSES': [
+        'rest_framework.throttling.AnonRateThrottle',
+        'rest_framework.throttling.UserRateThrottle',
+        'rest_framework.throttling.ScopedRateThrottle',
+    ],
+    'DEFAULT_THROTTLE_RATES': {
+            'anon': '60/hour',
+            'user': '600/hour',
+            'login': '5/min',
+    }
 }
 
 
@@ -199,4 +209,16 @@ SIMPLE_JWT = {
     "REFRESH_TOKEN_LIFETIME": timedelta(days=1),
     "ROTATE_REFRESH_TOKENS": False,
     "AUTH_HEADER_TYPES": ("Bearer",), # JWT
+}
+
+
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    "handlers": {
+        "console": {"class": "logging.StreamHandler"},
+    },
+    "loggers": {
+        "security": {"handlers": ["console"], "level": "INFO"},
+    },
 }
