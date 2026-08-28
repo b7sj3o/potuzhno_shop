@@ -1,46 +1,81 @@
 {% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Каталог - ПОТУЖНО Shop{% endblock %}
+
 {% block content %}
-<div class="max-w-7xl mx-auto">
-    <div class="text-center mb-10">
-        <h1 class="text-4xl font-black tracking-tight text-white mb-2">Каталог екіпірування ⚡</h1>
-        <p class="text-slate-400">Обирай найпотужніші товари для перемог!</p>
-    </div>
-
-    <form method="get" class="bg-slate-900 border border-slate-800 rounded-2xl p-4 shadow-xl mb-8 flex flex-col md:flex-row gap-4 items-center justify-between">
-        <div class="flex w-full md:w-auto gap-2 flex-grow">
-            <input type="text" name="q" value="{{ request.GET.q|default:'' }}" placeholder="Пошук товарів..." class="w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-2.5 text-white focus:border-amber-400 focus:outline-none transition">
-            <button type="submit" class="bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold px-6 py-2.5 rounded-xl transition shadow">Пошук</button>
-        </div>
-        <div class="flex items-center gap-2 w-full md:w-auto justify-end">
-            <label class="text-sm font-semibold text-slate-400 whitespace-nowrap">Сортування:</label>
-            <select name="sort" onchange="this.form.submit()" class="bg-slate-950 border border-slate-700 rounded-xl px-4 py-2.5 text-white focus:border-amber-400 focus:outline-none transition">
-                <option value="">За замовчуванням</option>
-                <option value="price_asc" {% if request.GET.sort == 'price_asc' %}selected{% endif %}>Від дешевих до дорогих</option>
-                <option value="price_desc" {% if request.GET.sort == 'price_desc' %}selected{% endif %}>Від дорогих до дешевих</option>
-                <option value="newest" {% if request.GET.sort == 'newest' %}selected{% endif %}>Найновіші</option>
-            </select>
-        </div>
-    </form>
-
-    {% if products %}
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-        {% for product in products %}
-        <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-xl flex flex-col justify-between hover:border-slate-700 transition">
-            <div>
-                <h3 class="text-xl font-bold text-white mb-2">{{ product.name }}</h3>
-                <p class="text-slate-400 text-sm mb-4 line-clamp-2">{{ product.description }}</p>
-            </div>
-            <div class="flex items-center justify-between pt-4 border-t border-slate-800">
-                <span class="text-2xl font-black text-amber-400">{{ product.price }} ₴</span>
-                <a href="{% url 'shop:product_detail' product.slug %}" class="bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold px-4 py-2 rounded-xl transition shadow">Детальніше</a>
-            </div>
-        </div>
-        {% endfor %}
-    </div>
-    {% else %}
-    <div class="text-center py-20 bg-slate-900/50 border border-slate-800 rounded-2xl">
-        <p class="text-slate-400 text-lg">За вашим запитом нічого не знайдено.</p>
-    </div>
-    {% endif %}
+<div class="text-center my-4">
+    <h1 class="fw-bold">⚡ ПОТУЖНО Shop</h1>
+    <p class="text-muted">Обирай найпотужніші товари для перемог!</p>
 </div>
+
+<!-- Форма пошуку та сортування -->
+<div class="card mb-4 shadow-sm border-0 bg-white">
+    <div class="card-body">
+        <form method="get" action="" class="row g-3 align-items-center">
+            <div class="col-md-8">
+                <div class="input-group">
+                    <input type="text" name="q" id="searchQuery" class="form-control" placeholder="Пошук товарів..." value="{{ request.GET.q|default:'' }}">
+                    <button class="btn btn-dark" type="submit">Пошук</button>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="input-group">
+                    <label class="input-group-text" for="sortSelect">Сортування</label>
+                    <select name="sort" id="sortSelect" class="form-select" onchange="this.form.submit()">
+                        <option value="">За замовчуванням</option>
+                        <option value="price_asc" {% if request.GET.sort == 'price_asc' %}selected{% endif %}>Від дешевих</option>
+                        <option value="price_desc" {% if request.GET.sort == 'price_desc' %}selected{% endif %}>Від дорогих</option>
+                    </select>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Сітка товарів -->
+<div class="row row-cols-1 row-cols-md-3 g-4">
+    {% for product in products %}
+    <div class="col">
+        <div class="card h-100 shadow-sm border-0">
+            {% if product.image %}
+                <img src="{{ product.image.url }}" class="card-img-top" alt="{{ product.name }}" style="height: 250px; object-fit: cover;">
+            {% else %}
+                <div class="card-img-top bg-light text-muted d-flex align-items-center justify-content-center border-bottom" style="height: 250px;">
+                    <span>Немає фото</span>
+                </div>
+            {% endif %}
+            
+            <div class="card-body d-flex flex-column">
+                <h5 class="card-title fw-bold">{{ product.name }}</h5>
+                <p class="card-text text-success fs-5 mb-3">{{ product.price }} ₴</p>
+                <div class="mt-auto">
+                    <a href="{{ product.get_absolute_url|default:'#' }}" class="btn btn-outline-dark w-100">Детальніше</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% empty %}
+    <div class="col-12 text-center my-5">
+        <h4 class="text-muted">Товарів не знайдено</h4>
+    </div>
+    {% endfor %}
+</div>
+
+<!-- Пагінація -->
+{% if page_obj and page_obj.has_other_pages %}
+<nav class="mt-5">
+    <ul class="pagination justify-content-center">
+        {% if page_obj.has_previous %}
+            <li class="page-item"><a class="page-link text-dark" href="?page={{ page_obj.previous_page_number }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}{% if request.GET.sort %}&sort={{ request.GET.sort }}{% endif %}">Попередня</a></li>
+        {% endif %}
+        
+        <li class="page-item disabled"><span class="page-link">Сторінка {{ page_obj.number }} з {{ page_obj.paginator.num_pages }}</span></li>
+        
+        {% if page_obj.has_next %}
+            <li class="page-item"><a class="page-link text-dark" href="?page={{ page_obj.next_page_number }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}{% if request.GET.sort %}&sort={{ request.GET.sort }}{% endif %}">Наступна</a></li>
+        {% endif %}
+    </ul>
+</nav>
+{% endif %}
 {% endblock %}

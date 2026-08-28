@@ -133,3 +133,8 @@ LOGGING = {
 
 # CORS Configuration
 CORS_ALLOW_ALL_ORIGINS = True
+
+STATICFILES_DIRS = [BASE_DIR / 'static']
+
+# Директорія для збору статичних файлів у продакшені
+STATIC_ROOT = BASE_DIR / 'staticfiles'
