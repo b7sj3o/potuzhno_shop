@@ -38,6 +38,7 @@
 | База даних | PostgreSQL 17 (через Docker) |
 | API | Django REST Framework + SimpleJWT |
 | GraphQL | graphene-django |
+| Фронтенд (SPA) | React 19 + Vite + React Router + Tailwind CSS (`frontend/`) |
 | Тести | pytest-django |
 
 ---
@@ -67,6 +68,15 @@ python manage.py runserver
 ```
 
 Відкрити: http://127.0.0.1:8000/
+
+```bash
+# 6. (опційно) React-фронтенд поверх API — в окремому терміналі
+cd frontend
+npm install
+npm run dev                     # http://localhost:5173
+```
+
+> Деталі React-версії та доробок API — у [`docs/lessons/L21.5_react.md`](docs/lessons/L21.5_react.md).
 
 > ⚠️ Кроки 4–5 зʼявляться, коли ми створимо Django-проєкт на Рівні 1–2.
 > На старті репозиторій містить лише документацію та конфіги.

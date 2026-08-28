@@ -192,6 +192,7 @@ REST_FRAMEWORK = {
             'anon': '60/hour',
             'user': '600/hour',
             'login': '5/min',
+            'register': '10/hour',
     }
 }
 
@@ -220,5 +221,6 @@ LOGGING = {
     },
     "loggers": {
         "security": {"handlers": ["console"], "level": "INFO"},
+        "contact": {"handlers": ["console"], "level": "INFO"},
     },
 }
