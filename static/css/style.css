@@ -1,0 +1,15 @@
+
+/* Незалежний скрол для сайдбару фільтрів */
+.filter-sidebar-box {
+    position: sticky;
+    top: 90px;
+    max-height: calc(100vh - 110px);
+    overflow-y: auto;
+}
+.filter-sidebar-box::-webkit-scrollbar {
+    width: 6px;
+}
+.filter-sidebar-box::-webkit-scrollbar-thumb {
+    background-color: #adb5bd;
+    border-radius: 4px;
+}

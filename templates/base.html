@@ -3,22 +3,92 @@
 <html lang="uk">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}ПОТУЖНО Shop{% endblock %}</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
 </head>
-<body>
+<body class="d-flex flex-column min-vh-100 bg-light">
+    <!-- Навігаційна панель -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark sticky-top shadow-sm py-3">
+        <div class="container">
+            <!-- Логотип та назва магазину зліва зверху -->
+            <a class="navbar-brand fw-bold fs-4 text-warning d-flex align-items-center gap-2" href="{% url 'shop:product_list' %}">
+                <i class="bi bi-lightning-charge-fill"></i> ПОТУЖНО Shop
+            </a>
+            
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navContent">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            
+            <div class="collapse navbar-collapse" id="navContent">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                    <li class="nav-item">
+                        <a class="nav-link active" href="{% url 'shop:product_list' %}"><i class="bi bi-grid-fill"></i> Каталог</a>
+                    </li>
+                </ul>
+
+                <ul class="navbar-nav ms-auto align-items-center gap-2">
+                    <li class="nav-item">
+                        <a href="{% url 'cart:cart_detail' %}" class="btn btn-outline-warning position-relative px-3">
+                            <i class="bi bi-cart3"></i> Кошик
+                            {% if request.session.cart %}
+                                <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                                    {{ request.session.cart|length }}
+                                </span>
+                            {% endif %}
+                        </a>
+                    </li>
+                    {% if user.is_authenticated %}
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle text-white" href="#" role="button" data-bs-toggle="dropdown">
+                                <i class="bi bi-person-circle"></i> {{ user.username }}
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-end shadow">
+                                <li><a class="dropdown-item" href="/accounts/profile/"><i class="bi bi-person"></i> Профіль</a></li>
+                                <li><a class="dropdown-item" href="/orders/checkout/"><i class="bi bi-bag-check"></i> Замовлення</a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item text-danger" href="/accounts/logout/"><i class="bi bi-box-arrow-right"></i> Вийти</a></li>
+                            </ul>
+                        </li>
+                    {% else %}
+                        <li class="nav-item">
+                            <a href="/accounts/login/" class="btn btn-outline-light btn-sm px-3">Вхід</a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="/accounts/register/" class="btn btn-warning btn-sm px-3 fw-bold">Реєстрація</a>
+                        </li>
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Повідомлення -->
     <div class="container mt-3">
         {% if messages %}
             {% for message in messages %}
-                <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                <div class="alert alert-{{ message.tags|default:'info' }} alert-dismissible fade show shadow-sm" role="alert">
                     {{ message }}
                     <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                 </div>
             {% endfor %}
         {% endif %}
-
-        {% block content %}{% endblock %}
     </div>
+
+    <!-- Основний контент -->
+    <main class="container flex-grow-1 my-4">
+        {% block content %}{% endblock %}
+    </main>
+
+    <footer class="bg-dark text-white py-4 mt-auto">
+        <div class="container text-center">
+            <p class="mb-1 fw-bold text-warning">⚡ ПОТУЖНО Shop — Одяг та Взуття для Перемог</p>
+            <small class="text-muted">&copy; 2026 LOSTVAYNE-CORE. Усі права захищено.</small>
+        </div>
+    </footer>
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

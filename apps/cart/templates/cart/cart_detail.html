@@ -1,55 +1,68 @@
 {% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Кошик — ПОТУЖНО Shop{% endblock %}
+
 {% block content %}
+<div class="container py-4">
+    <h2 class="fw-bold mb-4"><i class="bi bi-cart3"></i> Ваш кошик</h2>
 
-<!DOCTYPE html>
-<html lang="uk">
-<head>
-    <meta charset="UTF-8">
-    <title>Кошик - Потужно Shop</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-</head>
-<body class="bg-light">
-    <div class="container my-5" style="max-width: 800px;">
-        {% if messages %}
-            {% for message in messages %}
-                <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
-                    {{ message }}
-                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                </div>
-            {% endfor %}
-        {% endif %}
-
-        <a href="{% url 'shop:product_list' %}" class="btn btn-secondary mb-3">&larr; Продовжити покупки</a>
-        <h2 class="mb-4">🛒 Ваш кошик</h2>
-
-        {% if cart.items.all %}
-            <div class="card shadow p-4 mb-4">
-                <ul class="list-group list-group-flush mb-3">
-                    {% for item in cart.items.all %}
-                        <li class="list-group-item d-flex justify-content-between align-items-center py-3">
-                            <div>
-                                <h5 class="mb-1">{{ item.product.name }}</h5>
-                                <small class="text-muted">Ціна: {{ item.product.price }} грн × {{ item.quantity }} шт.</small>
+    {% if cart %}
+        <div class="table-responsive bg-white rounded shadow-sm p-3 mb-4">
+            <table class="table align-middle">
+                <thead class="table-dark">
+                    <tr>
+                        <th>Товар</th>
+                        <th>Ціна</th>
+                        <th>Кількість</th>
+                        <th>Сума</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for product_id, item in cart.items %}
+                    <tr>
+                        <td>
+                            <div class="d-flex align-items-center gap-3">
+                                {% if item.image %}
+                                    <img src="{{ item.image }}" alt="{{ item.name }}" style="width: 50px; height: 50px; object-fit: cover;" class="rounded">
+                                {% else %}
+                                    <div class="bg-dark text-warning rounded d-flex align-items-center justify-content-center" style="width: 50px; height: 50px;">
+                                        <i class="bi bi-lightning-charge-fill"></i>
+                                    </div>
+                                {% endif %}
+                                <span class="fw-bold">{{ item.name }}</span>
                             </div>
-                            <span class="fw-bold text-success">{{ item.get_total_price }} грн</span>
-                        </li>
+                        </td>
+                        <td>{{ item.price }} ₴</td>
+                        <td>
+                            <div class="btn-group btn-group-sm" role="group">
+                                <a href="{% url 'cart:cart_decrease' product_id %}" class="btn btn-outline-dark">-</a>
+                                <span class="btn btn-light disabled fw-bold px-3">{{ item.quantity }}</span>
+                                <a href="{% url 'cart:cart_increase' product_id %}" class="btn btn-outline-dark">+</a>
+                            </div>
+                        </td>
+                        <td class="fw-bold text-success">{% widthratio item.price 1 item.quantity %} ₴</td>
+                    </tr>
                     {% endfor %}
-                </ul>
-                <div class="d-flex justify-content-between align-items-center border-top pt-3">
-                    <h4 class="fw-bold">Разом до сплати:</h4>
-                    <h4 class="text-orange-500 fw-bold text-success">{{ cart.get_total_price }} грн</h4>
-                </div>
-            </div>
-            <a href="{% url 'orders:checkout' %}" class="btn btn-success btn-lg w-100">Оформити замовлення</a>
-        {% else %}
-            <div class="card shadow p-5 text-center">
-                <p class="text-muted fs-5">Ваш кошик наразі порожній.</p>
-                <a href="{% url 'shop:product_list' %}" class="btn btn-primary mt-2">Перейти до каталогу</a>
-            </div>
-        {% endif %}
-    </div>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-</body>
-</html>
+                </tbody>
+            </table>
+        </div>
 
+        <div class="card shadow-sm border-0 p-4 bg-white text-end">
+            <h4 class="fw-bold mb-3">Загальна сума: <span class="text-success">{{ total_price }} ₴</span></h4>
+            <div class="d-flex justify-content-end gap-3">
+                <a href="{% url 'shop:product_list' %}" class="btn btn-outline-dark">Продовжити покупки</a>
+                <a href="{% url 'orders:checkout' %}" class="btn btn-warning fw-bold text-dark px-4">Оформити замовлення</a>
+            </div>
+        </div>
+    {% else %}
+        <div class="card shadow-sm border-0 text-center py-5 bg-white">
+            <div class="card-body">
+                <i class="bi bi-cart-x display-1 text-muted mb-3"></i>
+                <h4 class="text-muted mb-3">Ваш кошик наразі порожній.</h4>
+                <a href="{% url 'shop:product_list' %}" class="btn btn-warning fw-bold text-dark px-4">Перейти до каталогу</a>
+            </div>
+        </div>
+    {% endif %}
+</div>
 {% endblock %}
