@@ -24,18 +24,25 @@ class Brand(models.Model):
         return self.name
 
 
+from django.utils.text import slugify
+
 class Size(models.Model):
     name = models.CharField(max_length=50, unique=True, verbose_name='Розмір')
-    slug = models.SlugField(max_length=50, unique=True, verbose_name='Слаг')
+    slug = models.SlugField(max_length=50, unique=True, verbose_name='Слаг', blank=True)
 
     class Meta:
         verbose_name = 'Розмір'
         verbose_name_plural = 'Розміри'
         ordering = ['name']
 
+    def save(self, *args, **kwargs):
+        # додав автогенерацію слагу перед збереженням
+        if not self.slug:
+            self.slug = slugify(self.name)
+        super().save(*args, **kwargs)
+
     def __str__(self):
         return self.name
-
 
 class ProductQuerySet(models.QuerySet):
     def active(self):

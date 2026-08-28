@@ -13,5 +13,8 @@ class WishlistViewSet(viewsets.ModelViewSet):
     permission_classes = [permissions.IsAuthenticated]
 
     def get_queryset(self):
+        # додав перевірку для генерації документації swagger
+        if getattr(self, 'swagger_fake_view', False):
+            return Wishlist.objects.none()
         # Фільтруємо обране виключно для поточного авторизованого юзера
         return Wishlist.objects.filter(user=self.request.user).order_by('-created_at')

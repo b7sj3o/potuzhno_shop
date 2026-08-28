@@ -4,14 +4,15 @@ from apps.orders.models import Order, OrderItem
 class OrderItemSerializer(serializers.ModelSerializer):
     class Meta:
         model = OrderItem
-        fields = ['variant', 'quantity', 'price']
+        fields = ['product', 'quantity', 'price']
 
 class OrderSerializer(serializers.ModelSerializer):
     items = OrderItemSerializer(many=True)
 
     class Meta:
         model = Order
-        fields = ['id', 'customer_name', 'phone', 'city', 'post_office', 'total_price', 'status', 'items', 'created_at']
+        fields = ['id', 'user', 'full_name', 'phone', 'created_at', 'total_price', 'status', 'items']
+        read_only_fields = ['user', 'created_at', 'status']
 
     def create(self, validated_data):
         items_data = validated_data.pop('items')

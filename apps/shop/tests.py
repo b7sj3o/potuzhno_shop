@@ -2,7 +2,8 @@
 from django.test import TestCase, Client
 from django.contrib.auth.models import User
 from django.db import IntegrityError
-from apps.shop.models import Category, Brand, Size, Product, Review
+from apps.shop.models import Category, Brand, Size, Product
+from apps.reviews.models import Review
 from apps.accounts.models import Profile
 from apps.cart.models import Cart, CartItem
 from apps.orders.models import Order, OrderItem
@@ -334,3 +335,4 @@ class PotuzhnoShopUltimate100Tests(TestCase):
         CartItem.objects.create(cart=cart, product=self.product)
         res = self.client.get('/orders/checkout/')
         self.assertTemplateUsed(res, 'orders/checkout.html')
+
