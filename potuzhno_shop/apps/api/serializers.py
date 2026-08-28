@@ -102,11 +102,12 @@ class ProductWriteSerializer(serializers.ModelSerializer):
 
 
     def create(self, validated_data):
-        sizes = validated_data.pop("sizes")
+        sizes = validated_data.pop("sizes") if "sizes" in validated_data else None
         validated_data["slug"] = unique_slug(validated_data["name"])
 
         product = Product.objects.create(**validated_data)
-        product.sizes.set(sizes)  # Обов'язково при M2M
+        if sizes:
+            product.sizes.set(sizes)  # Обов'язково при M2M
 
         return product
 

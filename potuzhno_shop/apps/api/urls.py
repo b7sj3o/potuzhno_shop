@@ -12,6 +12,7 @@ router.register("categories", views.CategoryViewSet, basename="category")
 router.register("brands", views.BrandViewSet, basename="brand")
 router.register("reviews", views.ReviewViewSet, basename="review")
 router.register("sizes", views.SizeViewSet, basename="size")
+
 urlpatterns = [
     path("", include(router.urls)),
     # path("token-auth/", obtain_auth_token),
