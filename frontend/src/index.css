@@ -1,105 +1,96 @@
-:root {
-  --text: #6b6375;
-  --text-h: #08060d;
-  --bg: #fff;
-  --border: #e5e4e7;
-  --code-bg: #f4f3ec;
-  --accent: #aa3bff;
-  --accent-bg: rgba(170, 59, 255, 0.1);
-  --accent-border: rgba(170, 59, 255, 0.5);
-  --social-bg: rgba(244, 243, 236, 0.5);
-  --shadow:
-    rgba(0, 0, 0, 0.1) 0 10px 15px -3px, rgba(0, 0, 0, 0.05) 0 4px 6px -2px;
+@import "tailwindcss";
 
-  --sans: system-ui, 'Segoe UI', Roboto, sans-serif;
-  --heading: system-ui, 'Segoe UI', Roboto, sans-serif;
-  --mono: ui-monospace, Consolas, monospace;
+/*
+ * Design tokens for ПОТУЖНО Shop.
+ * Tailwind v4 turns every --color-* / --font-* token into utilities:
+ * e.g. bg-paper, text-ink, border-line, font-display.
+ */
+@theme {
+  --color-paper: #f6f6f4; /* page background */
+  --color-card: #ffffff;
+  --color-ink: #17151f; /* primary text, near-black with a violet cast */
+  --color-muted: #6e6a7a; /* secondary text */
+  --color-line: #e5e3ec; /* hairline borders */
 
-  font: 18px/145% var(--sans);
-  letter-spacing: 0.18px;
-  color-scheme: light dark;
-  color: var(--text);
-  background: var(--bg);
-  font-synthesis: none;
-  text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+  --color-accent: #5a2fd1; /* brand violet, evolved from the templates' #6f42c1 */
+  --color-accent-deep: #47249f;
+  --color-accent-soft: #efeafb;
 
-  @media (max-width: 1024px) {
-    font-size: 16px;
+  --color-volt: #ffd335; /* rating stars, highlight badges */
+  --color-volt-soft: #fff5cc;
+
+  --color-danger: #d33a2c;
+  --color-danger-soft: #fdeceb;
+
+  --font-display: "Unbounded", "Golos Text", system-ui, sans-serif;
+  --font-sans: "Golos Text", system-ui, "Segoe UI", sans-serif;
+}
+
+@layer base {
+  body {
+    @apply bg-paper font-sans text-ink antialiased;
+  }
+
+  /* Visible keyboard focus everywhere, in brand color */
+  :focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 2px;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      transition: none !important;
+      animation: none !important;
+    }
   }
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --text: #9ca3af;
-    --text-h: #f3f4f6;
-    --bg: #16171d;
-    --border: #2e303a;
-    --code-bg: #1f2028;
-    --accent: #c084fc;
-    --accent-bg: rgba(192, 132, 252, 0.15);
-    --accent-border: rgba(192, 132, 252, 0.5);
-    --social-bg: rgba(47, 48, 58, 0.5);
-    --shadow:
-      rgba(0, 0, 0, 0.4) 0 10px 15px -3px, rgba(0, 0, 0, 0.25) 0 4px 6px -2px;
+/*
+ * Small set of reusable component classes so pages don't repeat
+ * long utility chains for the same control.
+ */
+@layer components {
+  /* Shared button base + three variants */
+  .btn-primary,
+  .btn-outline,
+  .btn-danger {
+    @apply inline-flex cursor-pointer items-center justify-center gap-2 rounded-lg
+      px-4 py-2 text-sm font-semibold transition-colors
+      disabled:cursor-not-allowed disabled:opacity-50;
   }
 
-  #social .button-icon {
-    filter: invert(1) brightness(2);
+  .btn-primary {
+    @apply bg-accent text-white hover:bg-accent-deep;
   }
-}
 
-body {
-  margin: 0;
-}
-
-#root {
-  width: 1126px;
-  text-align: center;          /* ← увесь текст застосунку поїде по центру */
-  border-inline: 1px solid var(--border);
-}
-
-h1,
-h2 {
-  font-family: var(--heading);
-  font-weight: 500;
-  color: var(--text-h);
-}
-
-h1 {
-  font-size: 56px;
-  letter-spacing: -1.68px;
-  margin: 32px 0;
-  @media (max-width: 1024px) {
-    font-size: 36px;
-    margin: 20px 0;
+  .btn-outline {
+    @apply border border-line bg-card hover:border-accent hover:text-accent;
   }
-}
-h2 {
-  font-size: 24px;
-  line-height: 118%;
-  letter-spacing: -0.24px;
-  margin: 0 0 8px;
-  @media (max-width: 1024px) {
-    font-size: 20px;
+
+  .btn-danger {
+    @apply border border-danger/30 bg-card text-danger hover:bg-danger-soft;
   }
-}
-p {
-  margin: 0;
-}
 
-code,
-.counter {
-  font-family: var(--mono);
-  display: inline-flex;
-  border-radius: 4px;
-  color: var(--text-h);
-}
+  .input {
+    @apply w-full rounded-lg border border-line bg-card px-3 py-2 text-sm
+      placeholder:text-muted/60 focus:border-accent;
+  }
 
-code {
-  font-size: 15px;
-  line-height: 135%;
-  padding: 4px 8px;
-  background: var(--code-bg);
+  .field-label {
+    @apply mb-1 block text-xs font-semibold tracking-wide text-muted uppercase;
+  }
+
+  .field-error {
+    @apply mt-1 text-xs text-danger;
+  }
+
+  .card {
+    @apply rounded-xl border border-line bg-card;
+  }
+
+  .badge {
+    @apply inline-flex items-center rounded-md px-2 py-0.5 text-xs font-medium;
+  }
 }

@@ -1,16 +1,40 @@
-# React + Vite
+# ПОТУЖНО Shop — React-фронтенд
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+SPA-версія магазину поверх DRF API (`/api/v1/`). Повний розбір архітектури —
+у [docs/lessons/L21.5_react.md](../docs/lessons/L21.5_react.md).
 
-Currently, two official plugins are available:
+## Стек
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+- **Vite + React 19** (JavaScript, без TypeScript — свідомо, для простоти курсу)
+- **React Router 7** — маршрутизація
+- **Tailwind CSS 4** — стилі; дизайн-токени в `src/index.css`
+- JWT-автентифікація (SimpleJWT) з автоматичним refresh при 401
 
-## React Compiler
+## Запуск
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+```bash
+# бекенд повинен працювати на 127.0.0.1:8000
+npm install
+npm run dev        # http://localhost:5173
+```
 
-## Expanding the ESLint configuration
+Адреса API читається з `.env` → `VITE_API_URL`.
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+## Структура src/
+
+| Папка | Що всередині |
+|-------|--------------|
+| `api/` | Шар роботи з API: `client.js` (fetch + JWT + refresh), по файлу на ресурс |
+| `context/` | `AuthContext` (хто залогінений, ролі), `ToastContext` (сповіщення) |
+| `hooks/` | Перевикористовувані хуки (`useDebounce`) |
+| `components/` | UI-компоненти: `layout/`, `ui/`, `product/`, `reviews/` |
+| `pages/` | Сторінки-маршрути; `pages/manage/` — тільки для менеджерів каталогу |
+| `utils/` | Форматування (ціни, дати), розбір помилок DRF |
+
+## Команди
+
+```bash
+npm run dev      # dev-сервер з HMR
+npm run build    # production-збірка в dist/
+npm run lint     # ESLint
+```

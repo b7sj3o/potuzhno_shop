@@ -1,96 +1,66 @@
-import { useEffect, useState } from "react";
-import { fetchProducts } from "./api/products";
-import './App.css'
-import LoginForm from "./components/LoginForm.jsx";
-import SearchBar from "./components/SearchBar.jsx";
-import ProductList from "./components/ProductList.jsx";
-import {clearTokens, isLoggedIn} from "./api/auth.js";
+import { Routes, Route } from 'react-router-dom'
+import Layout from './components/layout/Layout.jsx'
+import RequireAuth from './components/RequireAuth.jsx'
+import HomePage from './pages/HomePage.jsx'
+import CatalogPage from './pages/CatalogPage.jsx'
+import ProductDetailPage from './pages/ProductDetailPage.jsx'
+import LoginPage from './pages/LoginPage.jsx'
+import RegisterPage from './pages/RegisterPage.jsx'
+import ProfilePage from './pages/ProfilePage.jsx'
+import ContactPage from './pages/ContactPage.jsx'
+import ProductFormPage from './pages/manage/ProductFormPage.jsx'
+import TaxonomyPage from './pages/manage/TaxonomyPage.jsx'
+import NotFoundPage from './pages/NotFoundPage.jsx'
 
-
-function App() {
-  const [search, setSearch] = useState("");
-  const [query, setQuery] = useState("");
-  const [products, setProducts] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
-  const [logged, setLogged] = useState(isLoggedIn());
-
-  useEffect(() => {
-    const timer = setTimeout(() => setQuery(search), 400);
-    return () => clearTimeout(timer);
-  }, [search]);
-
-  useEffect(() => {
-    const controller = new AbortController();
-
-    setLoading(true);
-    setError(null);
-
-    fetchProducts({ search: query, signal: controller.signal })
-      .then((data) => setProducts(data.results))
-      .catch((err) => {
-        if (err.name !== "AbortError") setError(err);
-      })
-      .finally(() => setLoading(false));
-
-    return () => controller.abort();
-  }, [query]);
-
-  async function handleToggleFavourite(product) {
-      const wasFavourite = product.is_favourite;
-
-      setProducts((prev) =>
-        prev.map((p) =>
-          p.id === product.id ? { ...p, is_favourite: !wasFavourite } : p
-        )
-      );
-
-      try {
-        if (wasFavourite) {
-          await removeFavourite(product.id);
-        } else {
-          await addFavourite(product.id);
-        }
-      } catch (err) {
-        // Не вийшло — повертаємо як було
-        setProducts((prev) =>
-          prev.map((p) =>
-            p.id === product.id ? { ...p, is_favourite: wasFavourite } : p
-          )
-        );
-        if (err.status === 401) {
-          alert("Спершу увійдіть");
-        }
-      }
-  }
-
-  function handleLogout() {
-    clearTokens();
-    setLogged(false);
-  }
-
+export default function App() {
   return (
-    <main className="app">
-      <header className="topbar">
-        <h1>ПОТУЖНО Shop</h1>
-        {logged ? (
-          <button onClick={handleLogout}>Вийти</button>
-        ) : (
-          <LoginForm onSuccess={() => setLogged(true)} />
-        )}
-      </header>
+    <Routes>
+      <Route element={<Layout />}>
+        <Route path="/" element={<HomePage />} />
+        <Route path="/products" element={<CatalogPage />} />
+        <Route path="/products/:slug" element={<ProductDetailPage />} />
+        <Route path="/contact" element={<ContactPage />} />
 
-      <SearchBar value={search} onChange={setSearch} />
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/register" element={<RegisterPage />} />
 
-      <ProductList
-        products={products}
-        loading={loading}
-        error={error}
-        canFavourite={logged}
-        onToggleFavourite={handleToggleFavourite}
-      />
-    </main>
-  );
+        <Route
+          path="/profile"
+          element={
+            <RequireAuth>
+              <ProfilePage />
+            </RequireAuth>
+          }
+        />
+
+        {/* Catalog management: superuser or "Менеджер каталогу" group */}
+        <Route
+          path="/manage/products/new"
+          element={
+            <RequireAuth manager>
+              <ProductFormPage />
+            </RequireAuth>
+          }
+        />
+        <Route
+          path="/manage/products/:slug/edit"
+          element={
+            <RequireAuth manager>
+              <ProductFormPage />
+            </RequireAuth>
+          }
+        />
+        <Route
+          path="/manage/taxonomy"
+          element={
+            <RequireAuth manager>
+              <TaxonomyPage />
+            </RequireAuth>
+          }
+        />
+
+        <Route path="*" element={<NotFoundPage />} />
+      </Route>
+    </Routes>
+  )
 }
-
-export default App
