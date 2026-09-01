@@ -3,6 +3,9 @@ from django.contrib.auth.password_validation import validate_password
 
 from rest_framework import serializers
 
+# from drf_spectacular.utils import extend_schema_field
+# from drf_spectacular.types import OpenApiTypes
+
 from apps.shop.models import Product, Category, Brand, Review, Size
 from apps.shop.forms import unique_slug
 
@@ -47,11 +50,11 @@ class ProductReadSerializer(serializers.ModelSerializer):
     def get_in_stock(self, obj):
         return obj.stock > 0
 
-
-    def get_avg_rating(self, obj):
+    # @extend_schema_field(OpenApiTypes.EMAIL)
+    def get_avg_rating(self, obj) -> float | None:
         return getattr(obj, "avg_rating", 0)
 
-    def get_reviews_count(self, obj):
+    def get_reviews_count(self, obj) -> int:
         return getattr(obj, "reviews_count", 0)
 
 

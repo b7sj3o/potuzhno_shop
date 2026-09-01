@@ -2,6 +2,7 @@ import logging
 
 from django.db.models import Exists, OuterRef, Value
 from django.db.models.deletion import ProtectedError
+from drf_spectacular.utils import extend_schema, OpenApiResponse
 
 from rest_framework import generics, status, viewsets
 from rest_framework.permissions import AllowAny, IsAuthenticated
@@ -33,6 +34,12 @@ from .filters import ProductFilter
 contact_logger = logging.getLogger("contact")
 
 class ProductViewSet(viewsets.ModelViewSet):
+    """
+    Управління Постами Блогу.
+
+    Дозволяє створювати, читати, оновлювати та видаляти пости.
+    """
+
     serializer_class = ProductReadSerializer
     permission_classes = (IsCatalogManagerOrReadOnly,)
     # SEO-дружні URL, як у шаблонах: /api/v1/products/<slug>/ замість /products/<id>/
@@ -73,16 +80,14 @@ class ProductViewSet(viewsets.ModelViewSet):
         return qs.annotate(is_favourite=Value(False))
 
     def get_serializer_class(self):
-        # Write-серіалізатор ТІЛЬКИ для мутацій. Стара умова
-        # `if self.action in ("list", "retrieve")` віддавала read-серіалізатор
-        # лише цим двом діям, тож кастомні @action (featured, favourites)
-        # діставали ProductWriteSerializer — без slug/avg_rating і зі
-        # stock/sku, які від не-staff мали бути приховані.
         if self.action in ("create", "update", "partial_update"):
             return ProductWriteSerializer
         return ProductReadSerializer
 
     def create(self, request, *args, **kwargs):
+        """
+        Створення посту
+        """
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
 
@@ -91,9 +96,6 @@ class ProductViewSet(viewsets.ModelViewSet):
         return Response(response.data, status=status.HTTP_201_CREATED)
 
     def update(self, request, *args, **kwargs):
-        # Як і в create: приймаємо write-серіалізатором, відповідаємо read-серіалізатором.
-        # Інакше PATCH повертав би поля ProductWriteSerializer — без slug,
-        # а фронтенду slug потрібен для редіректу (перейменування змінює slug).
         partial = kwargs.pop("partial", False)
         serializer = self.get_serializer(self.get_object(), data=request.data, partial=partial)
         serializer.is_valid(raise_exception=True)
@@ -102,6 +104,14 @@ class ProductViewSet(viewsets.ModelViewSet):
         response = ProductReadSerializer(product, context=self.get_serializer_context())
         return Response(response.data)
 
+
+    @extend_schema(
+        summary="Рекомендовані товари",
+        description="Повертає товари з is_featured=True",
+        responses={
+            200: ProductReadSerializer(many=True),
+        }
+    )
     @action(detail=False, methods=["get"])
     def featured(self, request):
         products = self.filter_queryset(self.get_queryset()).filter(is_featured=True)
@@ -132,6 +142,16 @@ class ProductViewSet(viewsets.ModelViewSet):
         serializer = ReviewReadSerializer(reviews, many=True, context=self.get_serializer_context())
         return Response(serializer.data)
 
+
+    @extend_schema(
+        summary="Добавити продукт в улюблене",
+        request=None,
+        responses={
+            200: OpenApiResponse(description="Товар вже доданий до улюблених!"),
+            201: OpenApiResponse(description="Товар додано в обране!"),
+            401: OpenApiResponse(description="Ви не зареєстровані!"),
+        },
+    )
     @action(
         detail=True,
         methods=["post"],
@@ -146,6 +166,10 @@ class ProductViewSet(viewsets.ModelViewSet):
         request.user.profile.favourites.add(product)
         return Response({"detail": "Product was added to your favourites"}, status=status.HTTP_201_CREATED)
 
+    @extend_schema(
+        summary="Видалити продукт з улюбленого",
+        request=None,
+    )
     @favourite.mapping.delete
     def remove_favourite(self, request, slug=None):
         product = self.get_object()

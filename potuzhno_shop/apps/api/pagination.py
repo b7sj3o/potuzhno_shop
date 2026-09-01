@@ -20,3 +20,22 @@ class StandardPagination(PageNumberPagination):
             },
             'results': data,
         })
+
+    def get_paginated_response_schema(self, schema):
+        return {
+            "type": "object",
+            "required": ["pagination", "results"],
+            "properties": {
+                "pagination": {
+                    "type": "object",
+                    "properties": {
+                        "count": {"type": "integer", "example": 100},
+                        "pages": {"type": "integer", "example": 5},
+                        "current": {"type": "integer", "example": 1},
+                        "next": {"type": "string", "nullable": True, "format": "uri"},
+                        "previous": {"type": "string", "nullable": True, "format": "uri"},
+                    }
+                },
+                "results": schema
+            }
+        }

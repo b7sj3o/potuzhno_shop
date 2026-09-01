@@ -52,7 +52,9 @@ INSTALLED_APPS = [
     "rest_framework_simplejwt",
     "django_filters",
 
-    "corsheaders"
+    "corsheaders",
+
+    "drf_spectacular"
 ]
 
 MIDDLEWARE = [
@@ -193,7 +195,8 @@ REST_FRAMEWORK = {
             'user': '600/hour',
             'login': '5/min',
             'register': '10/hour',
-    }
+    },
+    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema'
 }
 
 
@@ -223,4 +226,12 @@ LOGGING = {
         "security": {"handlers": ["console"], "level": "INFO"},
         "contact": {"handlers": ["console"], "level": "INFO"},
     },
+}
+
+
+SPECTACULAR_SETTINGS = {
+    "TITLE": "ПОТУЖНО Shop API",
+    "DESCRIPTION": "API інтернет-магазину одягу та взуття",
+    "VERSION": "1.0.0",
+    "SERVE_INCLUDE_SCHEMA": False
 }
