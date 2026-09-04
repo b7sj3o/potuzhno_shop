@@ -54,7 +54,8 @@ INSTALLED_APPS = [
 
     "corsheaders",
 
-    "drf_spectacular"
+    "drf_spectacular",
+    "graphene_django",
 ]
 
 MIDDLEWARE = [
@@ -234,4 +235,8 @@ SPECTACULAR_SETTINGS = {
     "DESCRIPTION": "API інтернет-магазину одягу та взуття",
     "VERSION": "1.0.0",
     "SERVE_INCLUDE_SCHEMA": False
+}
+
+GRAPHENE = {
+    "SCHEMA": "apps.api.schema.schema"
 }
